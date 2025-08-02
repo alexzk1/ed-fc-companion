@@ -141,7 +141,7 @@ class CanvasTableView:
 
         def updater(call_sign: str | None, cargo: fleetcarriercargo.CargoTally) -> bool:
             if self.canvas:
-                total_rows = 1 + len(cargo)
+                total_rows = 1 + len(cargo) + 1
                 self.canvas.delete("all")
                 self._draw_cell(0, "name", ptl("Commodity"))
                 self._draw_cell(0, "amount", ptl("Amount"))
@@ -171,12 +171,17 @@ class CanvasTableView:
                 market_with_amount.sort(key=lambda x: x[0].category)
 
                 row_index = 1
+                summ = 0
                 crop = True  # TODO: make it depend on width
                 for market, amount in market_with_amount:
+                    summ += amount
                     self._draw_cell(row_index, "name", market.trade_name, crop=crop)
                     self._draw_cell(row_index, "amount", amount, crop=crop)
                     self._draw_cell(row_index, "category", market.category, crop=crop)
                     row_index += 1
+
+                self._draw_cell(row_index, "category", "Total Used:", crop=crop)
+                self._draw_cell(row_index, "amount", summ, crop=crop)
 
                 logger.debug(f"Update finished of {total_rows} rows.")
             return False
