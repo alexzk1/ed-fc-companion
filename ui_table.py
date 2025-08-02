@@ -176,7 +176,15 @@ class CanvasTableView:
         *,
         crop: bool = False,
     ):
-        """Draws single cell, 0-row is assumed as header."""
+        """
+        Draws single cell, 0-row is assumed as header.
+        """
+
+        assert len(self._HEADER_ATTRIBUTES_PER_COLUMN) == len(self._ATTRIBUTES_PER_COL)
+        assert len(self._HEADER_ATTRIBUTES_PER_COLUMN) == len(self._COLUMN_WIDTH)
+        assert len(self._HEADER_ATTRIBUTES_PER_COLUMN) == len(self._COLUMNS)
+        assert len(self._HEADER_ATTRIBUTES_PER_COLUMN) == len(self._COLUMN_OFFSET)
+
         if not self.canvas:
             return self
 
