@@ -35,7 +35,7 @@ class CanvasTableView:
     ]
 
     def __init__(self, parent: tk.Widget) -> None:
-        self._COLUMN_WIDTH: list[int] = [120, 80, 100]
+        self._COLUMN_WIDTH: list[int] = [140, 80, 100]
 
         self.parent_frame = parent
         self.font = tkfont.Font()
