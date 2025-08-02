@@ -110,11 +110,11 @@ class CanvasTableView:
             self.canvas.config(yscrollcommand=vbar.set)
             self.canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
-            self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)  # Windows/macOS
-            self.canvas.bind_all(
+            self.canvas.bind("<MouseWheel>", self._on_mousewheel)  # Windows/macOS
+            self.canvas.bind(
                 "<Button-4>", self._on_mousewheel_linux
             )  # Linux (scroll up)
-            self.canvas.bind_all(
+            self.canvas.bind(
                 "<Button-5>", self._on_mousewheel_linux
             )  # Linux (scroll down)
             theme.update(frame)
