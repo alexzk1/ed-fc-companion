@@ -7,6 +7,7 @@ from translation import ptl
 import tkinter.font as tkfont
 import fleetcarriercargo
 from _logger import logger
+from cargo_names import MarketCatalogue, MarketName
 
 
 class CanvasTableView:
@@ -17,18 +18,24 @@ class CanvasTableView:
 
     # New column should be added in 4 places: _COLUMNS, _ATTRIBUTES_PER_COL, _HEADER_ATTRIBUTES, _COLUMN_WIDTH
     # last column is autoresized to fix
-    _COLUMNS = ["name", "amount"]  # Can be used instead indexes.
+    _COLUMNS = [
+        "category",
+        "amount",
+        "name",
+    ]  # Can be used instead indexes.
     _ATTRIBUTES_PER_COL = [
         {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.RIGHT, "anchor": tk.N},
+        {"justify": tk.LEFT, "anchor": tk.NW},
+        {"justify": tk.RIGHT, "anchor": tk.NW},
     ]
     _HEADER_ATTRIBUTES_PER_COLUMN = [
         {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.LEFT, "anchor": tk.N},
+        {"justify": tk.LEFT, "anchor": tk.NW},
+        {"justify": tk.RIGHT, "anchor": tk.NW},
     ]
 
     def __init__(self, parent: tk.Widget) -> None:
-        self._COLUMN_WIDTH: list[int] = [230, 100]
+        self._COLUMN_WIDTH: list[int] = [120, 80, 100]
 
         self.parent_frame = parent
         self.font = tkfont.Font()
@@ -137,7 +144,9 @@ class CanvasTableView:
                 total_rows = 1 + len(cargo)
                 self.canvas.delete("all")
                 self._draw_cell(0, "name", ptl("Commodity"))
-                self._draw_cell(0, "amount", ptl("Amount On Carrier"))
+                self._draw_cell(0, "amount", ptl("Amount"))
+                self._draw_cell(0, "category", ptl("Category"))
+
                 self.canvas.configure(
                     scrollregion=(
                         0,
@@ -149,14 +158,26 @@ class CanvasTableView:
                 logger.debug(
                     f"We have total rows to draw in table/carrier: {total_rows}."
                 )
+
+                market_with_amount: list[tuple[MarketName, int]] = []
+                for cargo_key, amount in cargo.items():
+                    market = MarketCatalogue.explain_commodity(cargo_key.commodity)
+                    if market:
+                        market_with_amount.append((market, amount))
+                    else:
+                        market_with_amount.append(
+                            (MarketName("", cargo_key.commodity, 0), amount)
+                        )
+                market_with_amount.sort(key=lambda x: x[0].category)
+
                 row_index = 1
                 crop = True  # TODO: make it depend on width
-                for cargo_key, amount in cargo.items():
-                    self._draw_cell(
-                        row_index, "name", cargo_key.market_name(), crop=crop
-                    )
+                for market, amount in market_with_amount:
+                    self._draw_cell(row_index, "name", market.trade_name, crop=crop)
                     self._draw_cell(row_index, "amount", amount, crop=crop)
+                    self._draw_cell(row_index, "category", market.category, crop=crop)
                     row_index += 1
+
                 logger.debug(f"Update finished of {total_rows} rows.")
             return False
 
