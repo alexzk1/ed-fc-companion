@@ -15,15 +15,17 @@ class CanvasTableView:
     _MAX_CANVAS_HEIGHT = 400
     _PAD_X_FOR_SCROLL_BAR = 30
 
-    # New column should be added in 3 places: _COLUMNS, _ATTRIBUTES_PER_COL, _COLUMN_WIDTH
+    # New column should be added in 4 places: _COLUMNS, _ATTRIBUTES_PER_COL, _HEADER_ATTRIBUTES, _COLUMN_WIDTH
     # last column is autoresized to fix
     _COLUMNS = ["name", "amount"]  # Can be used instead indexes.
     _ATTRIBUTES_PER_COL = [
         {"justify": tk.LEFT, "anchor": tk.NW},
         {"justify": tk.RIGHT, "anchor": tk.N},
     ]
-
-    _HEADER_ATTRIBUTES = {"justify": tk.LEFT, "anchor": tk.N}
+    _HEADER_ATTRIBUTES_PER_COLUMN = [
+        {"justify": tk.LEFT, "anchor": tk.NW},
+        {"justify": tk.LEFT, "anchor": tk.N},
+    ]
 
     def __init__(self, parent: tk.Widget) -> None:
         self._COLUMN_WIDTH: list[int] = [230, 100]
@@ -200,15 +202,15 @@ class CanvasTableView:
             if cropped:
                 text += ellipses
 
-        y = row * self._get_row_visible_height()
-        attr: dict[str, str] = self._ATTRIBUTES_PER_COL[col]
         if row == 0:
             fg = theme.current["highlight"] if theme.current else "blue"  # type: ignore
-            attr: dict[str, str] = self._HEADER_ATTRIBUTES
+            attr: dict[str, str] = self._HEADER_ATTRIBUTES_PER_COLUMN[col]
         else:
             fg = theme.current["foreground"] if theme.current else "black"  # type: ignore
+            attr: dict[str, str] = self._ATTRIBUTES_PER_COL[col]
 
         x = self._get_text_x(col, attr)
+        y = row * self._get_row_visible_height()
         self.canvas.create_text(x, y, text=text, fill=fg, **attr)  # type: ignore
 
     def _start_resize(self, event: tk.Event):
