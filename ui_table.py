@@ -4,7 +4,7 @@ from typing import Any, Optional
 from carrier_cargo_position import CarrierCargoPosition
 from icons_cache import IconsCache
 from rows_rclick_menu import RightClickContextMenuForTable
-from sell_on_station import FilterSellOnStation
+from sell_on_station import FilterSellOnDockedStation, FilterSellOnStationProtocol
 from theme import theme
 from translation import ptl
 import tkinter.font as tkfont
@@ -57,7 +57,7 @@ class CanvasTableView:
         self._frame.after(0, self._delayed_update_column_widths)
 
         self._last_drawn_items_in_rows_order: list[CarrierCargoPosition] | None = None
-        self.probably_color_market_on_station: str | None = None
+        self.probably_color_market_on_station: FilterSellOnStationProtocol | None = None
 
     def _on_frame_configure(self, event: Any):
         if not self._resize_pending:
@@ -151,12 +151,6 @@ class CanvasTableView:
         """
 
         def updater(call_sign: str | None, cargo: fleetcarriercargo.CargoTally) -> bool:
-            on_other_station_filter = (
-                FilterSellOnStation()
-                if self.probably_color_market_on_station
-                and self.probably_color_market_on_station != call_sign
-                else None
-            )
             if self._canvas:
                 # +1 for "header" and +1 for "totals"
                 self._total_rows = 1 + len(cargo) + 1
@@ -207,8 +201,13 @@ class CanvasTableView:
                         cargo_item.trade_name,
                         crop=crop,
                         mark_for_sell=bool(
-                            on_other_station_filter
-                            and on_other_station_filter.is_buying(cargo_item)
+                            self.probably_color_market_on_station
+                            and self.probably_color_market_on_station.is_not(
+                                call_sign or ""
+                            )
+                            and self.probably_color_market_on_station.is_buying(
+                                cargo_item
+                            )
                         ),
                     )
                     self._draw_cell(row_index, "amount", cargo_item.quantity, crop=crop)

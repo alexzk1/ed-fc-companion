@@ -7,13 +7,20 @@ import cargo_names
 from _logger import logger
 
 
-class FilterSellOnStation:
-    def __init__(self):
+class FilterSellOnStationProtocol:
+    def is_buying(self, what: CarrierCargoPosition) -> bool: ...
+
+    def is_not(self, station_name: str) -> bool: ...
+
+
+class FilterSellOnDockedStation(FilterSellOnStationProtocol):
+    def __init__(self, station: str):
         self._station_buys: list[cargo_names.MarketNameWithCommodity] = []
+        self._station = station
         self._load_market_json_what_station_buys()
 
-    def buys(self):
-        return self._station_buys
+    def is_not(self, station_name: str):
+        return self._station != station_name
 
     def is_buying(self, what: CarrierCargoPosition) -> bool:
         for item in self._station_buys:

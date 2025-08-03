@@ -1,4 +1,6 @@
 from typing import Any, Optional
+from external_web_search import FilterSellFromEDSM
+from sell_on_station import FilterSellOnDockedStation
 from ui_table import CanvasTableView
 import tkinter as tk
 from _logger import logger
@@ -41,14 +43,12 @@ class MainUiFrame(tk.Frame):
         state: dict[str, Any],
     ):
         event = entry.get("event")
-        if event == "SupercruiseTarget" and entry.get("TargetType") == "Station":
-            station_name = entry.get("Name")
-            station_system = entry.get("System")  # Может не совпадать с текущим system!
-            logger.debug(f"Station target selected: {station_name} in {station_system}")
-            self.station_target = (station_system, station_name)
+        logger.debug(f"Received event: {event}")
 
         if station and (event == "Market" or event == "StartUp" or event == "Docked"):
-            self.table_view.probably_color_market_on_station = station
+            self.table_view.probably_color_market_on_station = (
+                FilterSellOnDockedStation(station)
+            )
             self.table_view.update_from_carrier()
         elif event == "Undocked":
             self.table_view.probably_color_market_on_station = None
