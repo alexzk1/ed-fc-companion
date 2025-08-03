@@ -296,37 +296,59 @@ class CanvasTableView:
         logger.debug(f"Left mouse click at row={row}, col={col}")
 
     def _on_right_mouse_click(self, event: tk.Event):
+        row, col = self._get_clicked_data_cell(event)
+
+        logger.debug(f"Right mouse click at adjusted row={row}, col={col}")
+
+        if row is None or col is None:
+            logger.debug("Clicked outside valid data area")
+            return
+
+        if self._canvas and self._last_drawn_items_in_rows_order:
+            market, amount, commodity = self._last_drawn_items_in_rows_order[row]
+            logger.debug(
+                f"Right-clicked on commodity: {commodity}, market name: {market}"
+            )
+            menu = RightClickContextMenuForTable(
+                self._canvas, market, amount, commodity
+            )
+            menu.popup(event)
+        else:
+            logger.error("Canvas or data cell is/are not available during click event!")
+
+    def _get_clicked_data_cell(self, event: tk.Event) -> tuple[int | None, int | None]:
+        """
+        Converts x/y of the click on canvas into data cell row/col, excluding header and footer (retursn None, None).
+        """
         if not self._canvas:
-            logger.error("Somehow click happened on absent canvas!!!!")
-            return
+            logger.error("Canvas is not available during click event!")
+            return None, None
+
         if event.x < 0 or event.y < 0:
-            logger.warning("Click event out of canvas bounds!")
-            return
-        x: int = int(self._canvas.canvasx(event.x))  # type: ignore
-        y: int = int(self._canvas.canvasy(event.y))  # type: ignore
+            logger.warning("Click event coordinates are negative!")
+            return None, None
+
+        try:
+            x = int(self._canvas.canvasx(event.x))  # type: ignore
+            y = int(self._canvas.canvasy(event.y))  # type: ignore
+        except Exception as e:
+            logger.exception("Failed to convert canvas coordinates", exc_info=e)
+            return None, None
+
         row, col = self._coords_to_cell(x, y)
 
-        logger.debug(f"Right mouse click at row={row}, col={col}")
+        if row is None or col is None:
+            return None, None
 
+        # Subtract header (row 0) and check for footer
         exclude_header = 1
+        if row < exclude_header:
+            return None, None
 
-        # row is index, so it must be strictly less than len() which is size
-        # _last_drawn_items_in_rows_order does not have header AND total.
-        if (
-            self._last_drawn_items_in_rows_order is None
-            or row is None
-            or col is None
-            or row < exclude_header
-            or row - exclude_header >= len(self._last_drawn_items_in_rows_order)
+        adjusted_row = row - exclude_header
+        if self._last_drawn_items_in_rows_order is None or adjusted_row >= len(
+            self._last_drawn_items_in_rows_order
         ):
-            logger.debug(
-                f"Clicked row is out of bounds or no items drawn at row={row}, col={col}"
-            )
-            return
+            return None, None
 
-        market, amount, commodity = self._last_drawn_items_in_rows_order[
-            row - exclude_header
-        ]
-        logger.debug(f"Right-clicked on commodity: {commodity}, market name: {market}")
-        menu = RightClickContextMenuForTable(self._canvas, market, amount, commodity)
-        menu.popup(event)
+        return adjusted_row, col
