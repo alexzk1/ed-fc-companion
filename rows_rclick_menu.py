@@ -2,7 +2,7 @@ import tkinter as tk
 from typing import Callable
 import webbrowser
 from carrier_cargo_position import CarrierCargoPosition
-from inara_search import get_inara_commodity_url
+from external_web_search import get_inara_commodity_url
 
 
 class _MenuCommand:

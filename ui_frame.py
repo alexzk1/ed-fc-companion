@@ -41,6 +41,12 @@ class MainUiFrame(tk.Frame):
         state: dict[str, Any],
     ):
         event = entry.get("event")
+        if event == "SupercruiseTarget" and entry.get("TargetType") == "Station":
+            station_name = entry.get("Name")
+            station_system = entry.get("System")  # Может не совпадать с текущим system!
+            logger.debug(f"Station target selected: {station_name} in {station_system}")
+            self.station_target = (station_system, station_name)
+
         if station and (event == "Market" or event == "StartUp" or event == "Docked"):
             self.table_view.probably_color_market_on_station = station
             self.table_view.update_from_carrier()
