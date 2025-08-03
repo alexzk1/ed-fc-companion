@@ -2,7 +2,7 @@ from itertools import accumulate
 import tkinter as tk
 from typing import Any, Optional
 from icons_cache import IconsCache
-from rows_menu import RightClickContextMenuForTable
+from rows_rclick_menu import RightClickContextMenuForTable
 from theme import theme
 from translation import ptl
 import tkinter.font as tkfont
@@ -10,6 +10,7 @@ import fleetcarriercargo
 from _logger import logger
 from cargo_names import MarketCatalogue, MarketName
 from vertical_resize_handler import VerticalResizeHandler
+from vertical_wheel_scroll import CanvasVerticalMouseWheelScroller
 
 
 class CanvasTableView:
@@ -119,18 +120,15 @@ class CanvasTableView:
                 min_height=minimal_height_to_set,
                 max_height=400,
             )
+            # Vertical resize handling.
             self._resize_handler.set_source_of_events(sizegrip)
-
             self._canvas.config(yscrollcommand=vbar.set)
             self._canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-
-            self._canvas.bind("<MouseWheel>", self._on_mousewheel)  # Windows/macOS
-            self._canvas.bind(
-                "<Button-4>", self._on_mousewheel_linux
-            )  # Linux (scroll up)
-            self._canvas.bind(
-                "<Button-5>", self._on_mousewheel_linux
-            )  # Linux (scroll down)
+            # Scrolling by mouse wheel handling.
+            self._vertical_wheel_scroller = CanvasVerticalMouseWheelScroller(
+                self._canvas, attach=True
+            )
+            # Reaction L/R mouse buttons.
             self._canvas.bind("<Button-1>", self._on_left_mouse_click)
             self._canvas.bind("<Button-3>", self._on_right_mouse_click)
 
@@ -268,37 +266,6 @@ class CanvasTableView:
         x = self._get_text_x(col, attr)
         y = row * self._get_row_visible_height()
         self._canvas.create_text(x, y, text=text, fill=fg, **attr)  # type: ignore
-
-    def _start_resize(self, event: tk.Event):
-        if self._canvas:
-            self._resizing_y_start = event.y_root
-            self._resizing_h_start = self._canvas.winfo_height()
-            self._resizing = True
-
-    def _stop_resize(self, event: tk.Event):  # pylint: disable=W0613
-        self._resizing_y_start = 0
-        self._resizing_h_start = 0
-        self._resizing = False
-
-    def _resize_frame(self, event: tk.Event):
-        if self._resizing and self._canvas:
-            delta = self._resizing_y_start - event.y_root
-            height = self._resizing_h_start - delta
-            height = min(max(height, self._MIN_CANVAS_HEIGHT), self._MAX_CANVAS_HEIGHT)
-            self._canvas.config(height=height)
-
-    def _on_mousewheel(self, event: tk.Event) -> None:
-        # Windows/macOS: event.delta / 120 → 1 шаг
-        if self._canvas:
-            self._canvas.yview_scroll(-1 * (event.delta // 120), "units")
-
-    def _on_mousewheel_linux(self, event: tk.Event) -> None:
-        # Linux: Button-4 (up), Button-5 (down)
-        if self._canvas:
-            if event.num == 4:
-                self._canvas.yview_scroll(-1, "units")
-            elif event.num == 5:
-                self._canvas.yview_scroll(1, "units")
 
     def _get_text_x(self, col: int, attr: dict[str, str]) -> int:
         x = self._COLUMN_OFFSET[col]

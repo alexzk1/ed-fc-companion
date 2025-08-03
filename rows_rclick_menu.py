@@ -25,6 +25,9 @@ class RightClickContextMenuForTable:
         self._menu.add_separator()
         self._menu.add_command(label="Debug info", command=self._log_debug_info)
 
+        self._menu.add_separator()
+        self._menu.add_command(label="Cancel", command=lambda: None)
+
     def _copy_commodity(self):
         self._parent.clipboard_clear()
         self._parent.clipboard_append(self._commodity)
