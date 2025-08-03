@@ -1,7 +1,9 @@
 import tkinter as tk
 from typing import Callable
+import webbrowser
 from cargo_names import MarketName
-from _logger import logger
+import fleetcarriercargo
+from inara_search import get_inara_commodity_url
 
 
 class _MenuCommand:
@@ -32,8 +34,12 @@ class RightClickContextMenuForTable:
                 f"Copy: {self._market.trade_name}",
                 lambda: self._copy_to_clipboard(self._market.trade_name),
             ),
+            _MenuCommand(
+                "Check on Inara",
+                lambda: self._open_inara_search(self._market.trade_name),
+            ),
             _MenuSeparator(),
-            _MenuCommand(f"Cancel: {self._market.trade_name}", lambda: None),
+            _MenuCommand("Cancel/Close", lambda: None),
         ]
 
         self._build_menu()
@@ -54,3 +60,24 @@ class RightClickContextMenuForTable:
     def _copy_to_clipboard(self, text: str):
         self._parent.clipboard_clear()
         self._parent.clipboard_append(text)
+
+    def _open_inara_search(self, commodity_market_name: str):
+        """
+        Opens Inara search for buying or selling the given commodity.
+        Uses the carrier's current location as search center.
+        """
+
+        if not commodity_market_name:
+            return
+        url = get_inara_commodity_url(commodity_market_name)
+        if not url:
+            return
+
+        type(self).open_url(url)
+
+    @staticmethod
+    def open_url(url: str):
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            print(f"Failed to open browser: {e}")
