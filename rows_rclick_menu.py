@@ -1,8 +1,7 @@
 import tkinter as tk
 from typing import Callable
 import webbrowser
-from cargo_names import MarketName
-import fleetcarriercargo
+from carrier_cargo_position import CarrierCargoPosition
 from inara_search import get_inara_commodity_url
 
 
@@ -19,24 +18,23 @@ class _MenuSeparator:
 
 
 class RightClickContextMenuForTable:
-    def __init__(
-        self, parent: tk.Widget, market: MarketName, amount: int, commodity: str
-    ):
+    def __init__(self, parent: tk.Widget, carrier_cargo_position: CarrierCargoPosition):
         self._parent = parent
-        self._market = market
-        self._amount = amount
-        self._commodity = commodity
-
+        self._carrier_cargo_position: CarrierCargoPosition = carrier_cargo_position
         self._menu = tk.Menu(self._parent, tearoff=0)
 
         self._commands: list[_MenuCommand | _MenuSeparator] = [
             _MenuCommand(
-                f"Copy: {self._market.trade_name}",
-                lambda: self._copy_to_clipboard(self._market.trade_name),
+                f"Copy: {self._carrier_cargo_position.trade_name}",
+                lambda: self._copy_to_clipboard(
+                    self._carrier_cargo_position.trade_name
+                ),
             ),
             _MenuCommand(
                 "Check on Inara",
-                lambda: self._open_inara_search(self._market.trade_name),
+                lambda: self._open_inara_search(
+                    self._carrier_cargo_position.trade_name
+                ),
             ),
             _MenuSeparator(),
             _MenuCommand("Cancel/Close", lambda: None),

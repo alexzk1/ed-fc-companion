@@ -10,9 +10,9 @@ sys.path.insert(
 from _logger import logger
 from _logger import plugin_name
 from typing import Any
-from typing import Dict, Optional
+from typing import Optional
 
-this = sys.modules[__name__]
+_main_frame: MainUiFrame | None = None
 
 
 def plugin_start3(plugin_dir: str) -> str:
@@ -25,10 +25,12 @@ def journal_entry(
     is_beta: bool,
     system: Optional[str],
     station: Optional[str],
-    entry: Dict[str, Any],
-    state: Dict[str, Any],
+    entry: dict[str, Any],
+    state: dict[str, Any],
 ) -> None:
-    pass
+    global _main_frame
+    if _main_frame:
+        _main_frame.journal_entry(cmdr, is_beta, system, station, entry, state)
 
 
 # def plugin_prefs(parent, cmdr, is_beta):
@@ -40,4 +42,6 @@ def journal_entry(
 
 
 def plugin_app(parent: Any):
-    return MainUiFrame(parent)
+    global _main_frame
+    _main_frame = MainUiFrame(parent)
+    return _main_frame

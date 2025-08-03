@@ -1,3 +1,4 @@
+from typing import Any, Optional
 from ui_table import CanvasTableView
 import tkinter as tk
 from _logger import logger
@@ -29,3 +30,15 @@ class MainUiFrame(tk.Frame):
     def _cargo_on_carrier_updated(self):
         logger.debug("Got carrier update signal.")
         self.table_view.update_from_carrier()
+
+    def journal_entry(
+        self,
+        cmdr: str,
+        is_beta: bool,
+        system: Optional[str],
+        station: Optional[str],
+        entry: dict[str, Any],
+        state: dict[str, Any],
+    ):
+        if station != self.table_view.get_carrier_name():
+            pass

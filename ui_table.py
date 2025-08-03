@@ -1,6 +1,7 @@
 from itertools import accumulate
 import tkinter as tk
 from typing import Any, Optional
+from carrier_cargo_position import CarrierCargoPosition
 from icons_cache import IconsCache
 from rows_rclick_menu import RightClickContextMenuForTable
 from theme import theme
@@ -54,9 +55,8 @@ class CanvasTableView:
         self._COLUMN_OFFSET = list(accumulate([0] + self._COLUMN_WIDTH[:-1]))
         self._frame.after(0, self._delayed_update_column_widths)
 
-        self._last_drawn_items_in_rows_order: (
-            list[tuple[MarketName, int, str]] | None
-        ) = None
+        self._last_drawn_items_in_rows_order: list[CarrierCargoPosition] | None = None
+        self._own_carrier_name: str = ""
 
     def _on_frame_configure(self, event: Any):
         if not self._resize_pending:
@@ -88,6 +88,9 @@ class CanvasTableView:
         )
         self.reset()
         self.update_from_carrier()
+
+    def get_carrier_name(self) -> str:
+        return self._own_carrier_name
 
     def reset(self):
         """
@@ -150,6 +153,7 @@ class CanvasTableView:
         """
 
         def updater(call_sign: str | None, cargo: fleetcarriercargo.CargoTally) -> bool:
+            self._own_carrier_name = call_sign or ""
             if self._canvas:
                 # +1 for "header" and +1 for "totals"
                 self._total_rows = 1 + len(cargo) + 1
@@ -177,26 +181,28 @@ class CanvasTableView:
                     market = MarketCatalogue.explain_commodity(cargo_key.commodity)
                     if market:
                         self._last_drawn_items_in_rows_order.append(
-                            (market, amount, cargo_key.commodity)
+                            CarrierCargoPosition((market, amount, cargo_key.commodity))
                         )
                     else:
-                        self._last_drawn_items_in_rows_order.append(
-                            (
-                                MarketName("", cargo_key.commodity, 0),
-                                amount,
-                                cargo_key.commodity,
-                            )
+                        market_name = MarketName(
+                            category="", trade_name=cargo_key.commodity, id=0
                         )
-                self._last_drawn_items_in_rows_order.sort(key=lambda x: x[0].category)
+                        pos = CarrierCargoPosition(
+                            (market_name, amount, cargo_key.commodity)
+                        )
+                        self._last_drawn_items_in_rows_order.append(pos)
+                self._last_drawn_items_in_rows_order.sort(key=lambda x: x.category)
 
                 row_index = 1  # Because header was 0th row.
                 total_cargo = 0
                 crop = True  # TODO: make it depend on width
-                for market, amount, _ in self._last_drawn_items_in_rows_order:
-                    total_cargo += amount
-                    self._draw_cell(row_index, "name", market.trade_name, crop=crop)
-                    self._draw_cell(row_index, "amount", amount, crop=crop)
-                    self._draw_cell(row_index, "category", market.category, crop=crop)
+                for cargo_item in self._last_drawn_items_in_rows_order:
+                    total_cargo += cargo_item.quantity
+                    self._draw_cell(row_index, "name", cargo_item.trade_name, crop=crop)
+                    self._draw_cell(row_index, "amount", cargo_item.quantity, crop=crop)
+                    self._draw_cell(
+                        row_index, "category", cargo_item.category, crop=crop
+                    )
                     row_index += 1
 
                 # Total field
@@ -290,13 +296,9 @@ class CanvasTableView:
             return
 
         if self._canvas and self._last_drawn_items_in_rows_order:
-            market, amount, commodity = self._last_drawn_items_in_rows_order[row]
-            logger.debug(
-                f"Right-clicked on commodity: {commodity}, market name: {market}"
-            )
-            menu = RightClickContextMenuForTable(
-                self._canvas, market, amount, commodity
-            )
+            item = self._last_drawn_items_in_rows_order[row]
+            logger.debug(f"Right-clicked on {item}")
+            menu = RightClickContextMenuForTable(self._canvas, item)
             menu.popup(event)
         else:
             logger.error("Canvas or data cell is/are not available during click event!")
