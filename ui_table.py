@@ -303,8 +303,12 @@ class CanvasTableView:
 
     def _get_clicked_data_cell(self, event: tk.Event) -> tuple[int | None, int | None]:
         """
-        Converts x/y of the click on canvas into data cell row/col,
-        EXCLUDING header and footer (retursn None, None).
+        Translate a mouse click event's canvas coordinates into the corresponding data cell indices,
+        adjusting for and excluding header and footer rows.
+
+        Returns:
+            Tuple of (row_index, col_index) relative to data rows (header and footer excluded),
+            or (None, None) if the click is outside the valid data area.
         """
         if not self._canvas:
             logger.error("Canvas is not available during click event!")
@@ -343,7 +347,11 @@ class CanvasTableView:
         self, x: int, y: int
     ) -> tuple[int | None, int | None]:
         """
-        This gives coordinates of the cell, INCLDUDING all headers and footers.
+        Convert canvas pixel coordinates into table cell indices, including headers and footers.
+
+        Returns:
+            Tuple of (row_index, col_index) where indices correspond to the full table including
+            header and footer rows, or (None, None) if coordinates fall outside the table.
         """
         for col, (offset, width) in enumerate(
             zip(self._COLUMN_OFFSET, self._COLUMN_WIDTH)
