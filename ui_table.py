@@ -276,24 +276,9 @@ class CanvasTableView:
             x += self._COLUMN_WIDTH[col] // 2
         return x
 
-    def _coords_to_cell(self, x: int, y: int) -> tuple[int | None, int | None]:
-        for col, (offset, width) in enumerate(
-            zip(self._COLUMN_OFFSET, self._COLUMN_WIDTH)
-        ):
-            if offset <= x < offset + width:
-                break
-        else:
-            return None, None
-
-        row = y // self._get_row_visible_height()
-        if row >= self._total_rows:
-            return None, None
-
-        return row, col
-
     def _on_left_mouse_click(self, event: tk.Event):
-        row, col = self._coords_to_cell(event.x, event.y)
-        logger.debug(f"Left mouse click at row={row}, col={col}")
+        row, col = self._get_clicked_data_cell(event)
+        logger.debug(f"Left mouse click at adjusted row={row}, col={col}")
 
     def _on_right_mouse_click(self, event: tk.Event):
         row, col = self._get_clicked_data_cell(event)
@@ -318,7 +303,8 @@ class CanvasTableView:
 
     def _get_clicked_data_cell(self, event: tk.Event) -> tuple[int | None, int | None]:
         """
-        Converts x/y of the click on canvas into data cell row/col, excluding header and footer (retursn None, None).
+        Converts x/y of the click on canvas into data cell row/col,
+        EXCLUDING header and footer (retursn None, None).
         """
         if not self._canvas:
             logger.error("Canvas is not available during click event!")
@@ -335,7 +321,7 @@ class CanvasTableView:
             logger.exception("Failed to convert canvas coordinates", exc_info=e)
             return None, None
 
-        row, col = self._coords_to_cell(x, y)
+        row, col = self._coords_to_cell_including_header_footer(x, y)
 
         if row is None or col is None:
             return None, None
@@ -352,3 +338,23 @@ class CanvasTableView:
             return None, None
 
         return adjusted_row, col
+
+    def _coords_to_cell_including_header_footer(
+        self, x: int, y: int
+    ) -> tuple[int | None, int | None]:
+        """
+        This gives coordinates of the cell, INCLDUDING all headers and footers.
+        """
+        for col, (offset, width) in enumerate(
+            zip(self._COLUMN_OFFSET, self._COLUMN_WIDTH)
+        ):
+            if offset <= x < offset + width:
+                break
+        else:
+            return None, None
+
+        row = y // self._get_row_visible_height()
+        if row >= self._total_rows:
+            return None, None
+
+        return row, col
