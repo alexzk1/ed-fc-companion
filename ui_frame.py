@@ -40,5 +40,12 @@ class MainUiFrame(tk.Frame):
         entry: dict[str, Any],
         state: dict[str, Any],
     ):
+        event = entry.get("event")
         if station != self.table_view.get_carrier_name():
-            pass
+            if event == "Market":
+                commodities = entry.get("Commodities", [])
+                buyable_codes = set()
+                for c in commodities:
+                    if c.get("Demand", 0) > 0:
+                        buyable_codes.add(c["Name"])
+                        logger.debug(f"Station buys: {c['Name']}")
