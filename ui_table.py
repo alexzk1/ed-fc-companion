@@ -115,12 +115,12 @@ class CanvasTableView:
                 frame, image=IconsCache.icons["resize"], cursor="sizing"
             )
             sizegrip.pack(side=tk.BOTTOM, anchor=tk.SE)
+            # Vertical resize handling.
             self._resize_handler = VerticalResizeHandler(
                 target=self._canvas,
                 min_height=minimal_height_to_set,
                 max_height=400,
             )
-            # Vertical resize handling.
             self._resize_handler.set_source_of_events(sizegrip)
             self._canvas.config(yscrollcommand=vbar.set)
             self._canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
