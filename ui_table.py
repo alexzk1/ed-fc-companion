@@ -296,19 +296,28 @@ class CanvasTableView:
         logger.debug(f"Left mouse click at row={row}, col={col}")
 
     def _on_right_mouse_click(self, event: tk.Event):
-        row, col = self._coords_to_cell(event.x, event.y)
+        if not self._canvas:
+            logger.error("Somehow click happened on absent canvas!!!!")
+            return
+        if event.x < 0 or event.y < 0:
+            logger.warning("Click event out of canvas bounds!")
+            return
+        x: int = int(self._canvas.canvasx(event.x))  # type: ignore
+        y: int = int(self._canvas.canvasy(event.y))  # type: ignore
+        row, col = self._coords_to_cell(x, y)
+
         logger.debug(f"Right mouse click at row={row}, col={col}")
 
         exclude_header = 1
-        exclude_totals = 1
 
         # row is index, so it must be strictly less than len() which is size
+        # _last_drawn_items_in_rows_order does not have header AND total.
         if (
             self._last_drawn_items_in_rows_order is None
             or row is None
             or col is None
             or row < exclude_header
-            or row >= len(self._last_drawn_items_in_rows_order) - exclude_totals
+            or row - exclude_header >= len(self._last_drawn_items_in_rows_order)
         ):
             logger.debug(
                 f"Clicked row is out of bounds or no items drawn at row={row}, col={col}"
@@ -319,10 +328,5 @@ class CanvasTableView:
             row - exclude_header
         ]
         logger.debug(f"Right-clicked on commodity: {commodity}, market name: {market}")
-        if self._canvas:
-            menu = RightClickContextMenuForTable(
-                self._canvas, market, amount, commodity
-            )
-            menu.popup(event)
-        else:
-            logger.error("Somehow click happened on absent canvas!!!!")
+        menu = RightClickContextMenuForTable(self._canvas, market, amount, commodity)
+        menu.popup(event)
