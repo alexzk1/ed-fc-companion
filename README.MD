@@ -10,8 +10,8 @@ It uses and requires installed [plugin-library](https://github.com/alexzk1/ed-fc
 
 - It shows all cargo on carrier in EDMC interface.
 - Using single r-click, allows to copy commodity name.
-- Using single r-click, allows to search it on Inara
-
+- Using single r-click, allows to search it on Inara.
+- When you dock to other station than carrier, it colors commodities on carrier which can be sold on this station.
 
 
 ## Todo:

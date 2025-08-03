@@ -4,6 +4,7 @@ from typing import Any, Optional
 from carrier_cargo_position import CarrierCargoPosition
 from icons_cache import IconsCache
 from rows_rclick_menu import RightClickContextMenuForTable
+from sell_on_station import FilterSellOnStation
 from theme import theme
 from translation import ptl
 import tkinter.font as tkfont
@@ -56,7 +57,7 @@ class CanvasTableView:
         self._frame.after(0, self._delayed_update_column_widths)
 
         self._last_drawn_items_in_rows_order: list[CarrierCargoPosition] | None = None
-        self._own_carrier_name: str = ""
+        self.probably_color_market_on_station: str | None = None
 
     def _on_frame_configure(self, event: Any):
         if not self._resize_pending:
@@ -88,9 +89,6 @@ class CanvasTableView:
         )
         self.reset()
         self.update_from_carrier()
-
-    def get_carrier_name(self) -> str:
-        return self._own_carrier_name
 
     def reset(self):
         """
@@ -153,7 +151,12 @@ class CanvasTableView:
         """
 
         def updater(call_sign: str | None, cargo: fleetcarriercargo.CargoTally) -> bool:
-            self._own_carrier_name = call_sign or ""
+            on_other_station_filter = (
+                FilterSellOnStation()
+                if self.probably_color_market_on_station
+                and self.probably_color_market_on_station != call_sign
+                else None
+            )
             if self._canvas:
                 # +1 for "header" and +1 for "totals"
                 self._total_rows = 1 + len(cargo) + 1
@@ -198,7 +201,16 @@ class CanvasTableView:
                 crop = True  # TODO: make it depend on width
                 for cargo_item in self._last_drawn_items_in_rows_order:
                     total_cargo += cargo_item.quantity
-                    self._draw_cell(row_index, "name", cargo_item.trade_name, crop=crop)
+                    self._draw_cell(
+                        row_index,
+                        "name",
+                        cargo_item.trade_name,
+                        crop=crop,
+                        mark_for_sell=bool(
+                            on_other_station_filter
+                            and on_other_station_filter.is_buying(cargo_item)
+                        ),
+                    )
                     self._draw_cell(row_index, "amount", cargo_item.quantity, crop=crop)
                     self._draw_cell(
                         row_index, "category", cargo_item.category, crop=crop
@@ -227,6 +239,7 @@ class CanvasTableView:
         text: str | int | None = None,
         *,
         crop: bool = False,
+        mark_for_sell: bool = False,
     ):
         """
         Draws single cell, 0-row is assumed as header.
@@ -266,7 +279,10 @@ class CanvasTableView:
             fg = theme.current["highlight"] if theme.current else "blue"  # type: ignore
             attr: dict[str, str] = self._HEADER_ATTRIBUTES_PER_COLUMN[col]
         else:
-            fg = theme.current["foreground"] if theme.current else "black"  # type: ignore
+            if mark_for_sell:
+                fg = theme.current["highlight"] if theme.current else "blue"  # type: ignore
+            else:
+                fg = theme.current["foreground"] if theme.current else "black"  # type: ignore
             attr: dict[str, str] = self._ATTRIBUTES_PER_COL[col]
 
         x = self._get_text_x(col, attr)

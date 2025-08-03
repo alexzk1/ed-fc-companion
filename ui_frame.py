@@ -41,11 +41,9 @@ class MainUiFrame(tk.Frame):
         state: dict[str, Any],
     ):
         event = entry.get("event")
-        if station != self.table_view.get_carrier_name():
-            if event == "Market":
-                commodities = entry.get("Commodities", [])
-                buyable_codes = set()
-                for c in commodities:
-                    if c.get("Demand", 0) > 0:
-                        buyable_codes.add(c["Name"])
-                        logger.debug(f"Station buys: {c['Name']}")
+        if station and (event == "Market" or event == "StartUp" or event == "Docked"):
+            self.table_view.probably_color_market_on_station = station
+            self.table_view.update_from_carrier()
+        elif event == "Undocked":
+            self.table_view.probably_color_market_on_station = None
+            self.table_view.update_from_carrier()

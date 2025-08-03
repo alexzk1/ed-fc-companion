@@ -24,6 +24,10 @@ class CarrierCargoPosition:
         """
         return self._market_data.trade_name
 
+    @property
+    def id(self) -> int:
+        return self._market_data.id
+
     def __repr__(self):
         return (
             f"CarrierPosition(trade_name={self.trade_name!r}, "
