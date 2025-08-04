@@ -47,6 +47,7 @@ class MultiPlanesWidget(tk.Frame):
         self.grid(row=0, column=0, sticky=tk.EW)
 
         self.__planes: dict[str, _SinglePlane] = {}
+        self._selected_plane: str = ""
 
         for name in planes:
             panel = tk.Frame(parent)
@@ -63,15 +64,20 @@ class MultiPlanesWidget(tk.Frame):
         if planes and len(planes) > 0:
             self._process_pane_button_click(planes[0])
 
-    @property
-    def plane_frames(self) -> Mapping[str, tk.Frame]:
-        return MultiPlanesWidget._PlaneDictView(self.__planes)
-
     def _process_pane_button_click(self, name: str):
         selected_plane = self.__planes.get(name, None)
         if selected_plane:
+            self._selected_plane = name
             for plane in self.__planes.values():
                 plane.button.config(relief=tk.RAISED, state=tk.NORMAL)
                 plane.panel.grid_remove()
             selected_plane.button.config(relief=tk.SUNKEN, state=tk.DISABLED)
             selected_plane.panel.grid()
+
+    @property
+    def plane_frames(self) -> Mapping[str, tk.Frame]:
+        return MultiPlanesWidget._PlaneDictView(self.__planes)
+
+    @property
+    def active_plane_frame(self) -> tk.Frame:
+        return self.plane_frames[self._selected_plane]

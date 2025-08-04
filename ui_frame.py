@@ -7,6 +7,17 @@ import tkinter as tk
 from _logger import logger
 import fleetcarriercargo
 import weakref
+from enum import Enum
+
+
+class TopPlane(str, Enum):
+    Cargo = "Cargo"
+    Tools = "Tools"
+
+
+class ToolsPlane(str, Enum):
+    Docked = "Docked"
+    Navigated = "Navigated"
 
 
 class MainUiFrame(tk.Frame):
@@ -21,9 +32,16 @@ class MainUiFrame(tk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
-        self._planes = MultiPlanesWidget(["Cargo", "Tools"], self)
-        self.table_view = CanvasTableView(self._planes.plane_frames["Cargo"])
-        label = tk.Label(self._planes.plane_frames["Tools"], text="Tools will go here")
+        planes = MultiPlanesWidget([TopPlane.Cargo, TopPlane.Tools], self)
+        self.table_view = CanvasTableView(planes.plane_frames[TopPlane.Cargo])
+        tool_planes = MultiPlanesWidget(
+            [ToolsPlane.Docked, ToolsPlane.Navigated],
+            planes.plane_frames[TopPlane.Tools],
+        )
+
+        label = tk.Label(
+            tool_planes.plane_frames[ToolsPlane.Docked], text="Tools will go here"
+        )
         label.pack(anchor="nw", padx=10, pady=10)
 
         weakself = weakref.ref(self)
