@@ -59,6 +59,10 @@ class CanvasTableView:
         self._last_drawn_items_in_rows_order: list[CarrierCargoPosition] | None = None
         self.probably_color_market_on_station: FilterSellOnStationProtocol | None = None
 
+    @property
+    def widget(self):
+        return self._frame
+
     def _on_frame_configure(self, event: Any):
         if not self._resize_pending:
             self._resize_pending = True
