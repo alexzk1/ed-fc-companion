@@ -23,8 +23,8 @@ class MainUiFrame(tk.Frame):
 
         switcher = tk.Frame(self)
         switcher.grid(row=0, column=0, sticky=tk.EW)
-        self.btn_cargo = tk.Button(switcher, text="Cargo", command=self.show_cargo)
-        self.btn_tools = tk.Button(switcher, text="Tools", command=self.show_tools)
+        self.btn_cargo = tk.Button(switcher, text="Cargo", command=self._show_cargo)
+        self.btn_tools = tk.Button(switcher, text="Tools", command=self._show_tools)
         self.btn_cargo.pack(side=tk.LEFT, padx=2, pady=2)
         self.btn_tools.pack(side=tk.LEFT, padx=2, pady=2)
 
@@ -42,7 +42,7 @@ class MainUiFrame(tk.Frame):
         label.pack(anchor="nw", padx=10, pady=10)
 
         # Initial opened
-        self.show_cargo()
+        self._show_cargo()
 
         weakself = weakref.ref(self)
 
@@ -53,14 +53,14 @@ class MainUiFrame(tk.Frame):
 
         fleetcarriercargo.FleetCarrierCargo.add_on_cargo_change_handler(update)
 
-    def show_cargo(self):
+    def _show_cargo(self):
         self.panel_tools.grid_remove()
         self.panel_cargo.grid()
 
         self.btn_cargo.config(relief=tk.SUNKEN, state=tk.DISABLED)
         self.btn_tools.config(relief=tk.RAISED, state=tk.NORMAL)
 
-    def show_tools(self):
+    def _show_tools(self):
         self.panel_cargo.grid_remove()
         self.panel_tools.grid()
 
