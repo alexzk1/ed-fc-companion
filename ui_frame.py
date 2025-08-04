@@ -1,12 +1,12 @@
 from typing import Any, Optional
 from external_web_search import FilterSellFromEDSM
+from multy_planes_widget import MultiPlanesWidget
 from sell_on_station import FilterSellOnDockedStation
 from ui_table import CanvasTableView
 import tkinter as tk
 from _logger import logger
 import fleetcarriercargo
 import weakref
-from tkinter import ttk
 
 
 class MainUiFrame(tk.Frame):
@@ -19,30 +19,12 @@ class MainUiFrame(tk.Frame):
         super().__init__(*args, **kwargs)
 
         self.columnconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)  # panel area
+        self.rowconfigure(1, weight=1)
 
-        switcher = tk.Frame(self)
-        switcher.grid(row=0, column=0, sticky=tk.EW)
-        self.btn_cargo = tk.Button(switcher, text="Cargo", command=self._show_cargo)
-        self.btn_tools = tk.Button(switcher, text="Tools", command=self._show_tools)
-        self.btn_cargo.pack(side=tk.LEFT, padx=2, pady=2)
-        self.btn_tools.pack(side=tk.LEFT, padx=2, pady=2)
-
-        # Cargo
-        self.panel_cargo = tk.Frame(self)
-        self.panel_cargo.grid(row=1, column=0, sticky=tk.NSEW)
-        self.panel_cargo.grid_rowconfigure(0, weight=1)
-        self.panel_cargo.grid_columnconfigure(0, weight=1)
-        self.table_view = CanvasTableView(self.panel_cargo)
-
-        # Tools
-        self.panel_tools = tk.Frame(self)
-        self.panel_tools.grid(row=1, column=0, sticky=tk.NSEW)
-        label = tk.Label(self.panel_tools, text="Tools will go here")
+        self._planes = MultiPlanesWidget(["Cargo", "Tools"], self)
+        self.table_view = CanvasTableView(self._planes.plane_frames["Cargo"])
+        label = tk.Label(self._planes.plane_frames["Tools"], text="Tools will go here")
         label.pack(anchor="nw", padx=10, pady=10)
-
-        # Initial opened
-        self._show_cargo()
 
         weakself = weakref.ref(self)
 
@@ -52,20 +34,6 @@ class MainUiFrame(tk.Frame):
                 obj._cargo_on_carrier_updated()
 
         fleetcarriercargo.FleetCarrierCargo.add_on_cargo_change_handler(update)
-
-    def _show_cargo(self):
-        self.panel_tools.grid_remove()
-        self.panel_cargo.grid()
-
-        self.btn_cargo.config(relief=tk.SUNKEN, state=tk.DISABLED)
-        self.btn_tools.config(relief=tk.RAISED, state=tk.NORMAL)
-
-    def _show_tools(self):
-        self.panel_cargo.grid_remove()
-        self.panel_tools.grid()
-
-        self.btn_tools.config(relief=tk.SUNKEN, state=tk.DISABLED)
-        self.btn_cargo.config(relief=tk.RAISED, state=tk.NORMAL)
 
     def _cargo_on_carrier_updated(self):
         logger.debug("Got carrier update signal.")
