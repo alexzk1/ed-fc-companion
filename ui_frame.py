@@ -1,23 +1,39 @@
 from typing import Any, Optional
-from external_web_search import FilterSellFromEDSM
-from multy_planes_widget import MultiPlanesWidget
-from sell_on_station import FilterSellOnDockedStation
+from ui_docked_undocked import UiDockedUndocked
+from ui_multy_planes_widget import MultiPlanesWidget, PlaneSwitch
+
 from ui_table import CanvasTableView
 import tkinter as tk
 from _logger import logger
 import fleetcarriercargo
 import weakref
-from enum import Enum
+import translation
 
 
-class TopPlane(str, Enum):
-    Cargo = "Cargo"
-    Tools = "Tools"
+class SwitchesModes:
+    Cargo = PlaneSwitch(
+        text=translation.ptl("Cargo On Carrier"),
+        tooltip=translation.ptl("Shows carrier's cargo."),
+    )
 
+    Highlighting = PlaneSwitch(
+        text=translation.ptl("Highlighting"),
+        tooltip=translation.ptl(
+            "Select which station to use for highlighting sellable cargo: the current docked station or the navigation target."
+        ),
+    )
 
-class ToolsPlane(str, Enum):
-    Docked = "Docked"
-    Navigated = "Navigated"
+    Docked = PlaneSwitch(
+        text=translation.ptl("Docked"),
+        tooltip=translation.ptl("If selected, highlight based on docked station."),
+    )
+
+    Navigated = PlaneSwitch(
+        text=translation.ptl("Navigated"),
+        tooltip=translation.ptl(
+            "If selected, use highlight based on current navigation."
+        ),
+    )
 
 
 class MainUiFrame(tk.Frame):
@@ -32,17 +48,19 @@ class MainUiFrame(tk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
-        planes = MultiPlanesWidget([TopPlane.Cargo, TopPlane.Tools], self)
-        self.table_view = CanvasTableView(planes.plane_frames[TopPlane.Cargo])
-        tool_planes = MultiPlanesWidget(
-            [ToolsPlane.Docked, ToolsPlane.Navigated],
-            planes.plane_frames[TopPlane.Tools],
+        planes = MultiPlanesWidget(
+            [SwitchesModes.Cargo, SwitchesModes.Highlighting], self
+        )
+        self._table_view = CanvasTableView(planes.plane_frames[SwitchesModes.Cargo])
+        self._tool_planes = MultiPlanesWidget(
+            [SwitchesModes.Docked, SwitchesModes.Navigated],
+            planes.plane_frames[SwitchesModes.Highlighting],
         )
 
-        label = tk.Label(
-            tool_planes.plane_frames[ToolsPlane.Docked], text="Tools will go here"
+        self._docked = UiDockedUndocked(
+            self._table_view, self._tool_planes.plane_frames[SwitchesModes.Docked]
         )
-        label.pack(anchor="nw", padx=10, pady=10)
+        self._docked.pack(anchor="nw", padx=10, pady=10)
 
         weakself = weakref.ref(self)
 
@@ -55,7 +73,7 @@ class MainUiFrame(tk.Frame):
 
     def _cargo_on_carrier_updated(self):
         logger.debug("Got carrier update signal.")
-        self.table_view.update_from_carrier()
+        self._table_view.populate_colored_carrier_data()
 
     def journal_entry(
         self,
@@ -68,12 +86,46 @@ class MainUiFrame(tk.Frame):
     ):
         event = entry.get("event")
         logger.debug(f"Received event: {event}")
+        if event == "StartUp":
+            self._table_view.populate_colored_carrier_data()
+        logger.debug(
+            f"Active pane {self._tool_planes.active_plane_frame}, docking pane {self._docked}."
+        )
+        if type(self).is_ancestor(self._tool_planes.active_plane_frame, self._docked):
+            logger.debug(f"Active 'Docked' plane, event {event}")
+            self._handle_docking_events(event, station)
 
-        if station and (event == "Market" or event == "StartUp" or event == "Docked"):
-            self.table_view.probably_color_market_on_station = (
-                FilterSellOnDockedStation(station)
+    def _handle_docking_events(self, event: Any, station: str | None):
+        if not hasattr(self, "_docked_call_after_id"):
+            self._docked_call_after_id = None
+
+        if event in ("StartUp", "Market", "Undocked"):
+            if self._docked_call_after_id is not None:
+                self.after_cancel(self._docked_call_after_id)
+                self._docked_call_after_id = None
+
+            if event == "Undocked":
+                self._docked.undocked()
+            else:
+                self._do_docked_to(station)
+
+        elif event == "Docked":
+            if self._docked_call_after_id is not None:
+                self.after_cancel(self._docked_call_after_id)
+
+            self._docked_call_after_id = self.after(
+                1000, lambda: self._do_docked_to(station)
             )
-            self.table_view.update_from_carrier()
-        elif event == "Undocked":
-            self.table_view.probably_color_market_on_station = None
-            self.table_view.update_from_carrier()
+
+    def _do_docked_to(self, station: str | None):
+        self._docked_call_after_id = None
+        self._docked.docked_to(station)
+
+    @staticmethod
+    def is_ancestor(ancestor: tk.Widget, widget: tk.Widget) -> bool:
+        current = widget
+        while current is not None:  # type: ignore
+            if current is ancestor:
+                return True
+            current = current.master
+        return False

@@ -56,8 +56,10 @@ class CanvasTableView:
         self._COLUMN_OFFSET = list(accumulate([0] + self._COLUMN_WIDTH[:-1]))
         self._frame.after(0, self._delayed_update_column_widths)
 
-        self._last_drawn_items_in_rows_order: list[CarrierCargoPosition] | None = None
-        self.probably_color_market_on_station: FilterSellOnStationProtocol | None = None
+        self._last_drawn_items_in_rows_order: Optional[list[CarrierCargoPosition]] = (
+            None
+        )
+        self._color_market_on_station: Optional[FilterSellOnStationProtocol] = None
 
     @property
     def widget(self):
@@ -92,7 +94,7 @@ class CanvasTableView:
             f"Table width {self._TABLE_WIDTH}, column width: {self._COLUMN_WIDTH[-1]}"
         )
         self.reset()
-        self.update_from_carrier()
+        self.populate_colored_carrier_data()
 
     def reset(self):
         """
@@ -149,7 +151,7 @@ class CanvasTableView:
                 scrollregion=(0, 0, self._TABLE_WIDTH, minimal_height_to_set),
             )
 
-    def update_from_carrier(self):
+    def populate_colored_carrier_data(self):
         """
         Main method to display data. It pulls carrier's cargo library, reads current state and displays it.
         """
@@ -205,13 +207,9 @@ class CanvasTableView:
                         cargo_item.trade_name,
                         crop=crop,
                         mark_for_sell=bool(
-                            self.probably_color_market_on_station
-                            and self.probably_color_market_on_station.is_not(
-                                call_sign or ""
-                            )
-                            and self.probably_color_market_on_station.is_buying(
-                                cargo_item
-                            )
+                            self._color_market_on_station
+                            and self._color_market_on_station.is_not(call_sign or "")
+                            and self._color_market_on_station.is_buying(cargo_item)
                         ),
                     )
                     self._draw_cell(row_index, "amount", cargo_item.quantity, crop=crop)
@@ -387,3 +385,7 @@ class CanvasTableView:
             return None, None
 
         return row, col
+
+    def set_cargo_colorer(self, colorer: Optional[FilterSellOnStationProtocol]):
+        self._color_market_on_station = colorer
+        self.populate_colored_carrier_data()
