@@ -1,3 +1,4 @@
+import threading
 from typing import Set, Tuple
 import requests
 from _logger import logger
@@ -41,16 +42,24 @@ def get_inara_commodity_url(commodity_name: str) -> str | None:
 
 
 class FilterSellFromEDSM(FilterSellOnStationProtocol):
+    _mutex = threading.Lock()
+    _cache_static: dict[Tuple[str, str], Set[int]] = {}
+
     def __init__(self, system: str, station: str):
         self._system = system
         self._station = station
-        self.cache: dict[Tuple[str, str], Set[int]] = {}
-        self._buy_ids = self.fetch_station_buys(system, station)
+        self.__fetch_station_buys(system, station)
 
-    def fetch_station_buys(self, system: str, station: str) -> Set[int]:
+    def __fetch_station_buys(self, system: str, station: str) -> None:
+        """
+        Gets and updates list of what station is buying from EDSM.
+        Uses own local in-RAM cache too to relax EDSM.
+        """
         key = (system, station)
-        if key in self.cache:
-            return self.cache[key]
+        with FilterSellFromEDSM._mutex:
+            if key in self._cache_static:
+                self._buy_ids = FilterSellFromEDSM._cache_static[key]
+                return
         url = (
             "https://www.edsm.net/api-system-v1/stations"
             f"?systemName={system}&stationName={station}&showMarket=1"
@@ -63,8 +72,9 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
             for item in data.get("market", {}).get("commodities", [])
             if item.get("demand", 0) > 0 and "id" in item
         }
-        self.cache[key] = buys
-        return buys
+        with FilterSellFromEDSM._mutex:
+            FilterSellFromEDSM._cache_static[key] = buys
+        self._buy_ids = buys
 
     def is_not(self, station_name: str) -> bool:
         return self._station != station_name

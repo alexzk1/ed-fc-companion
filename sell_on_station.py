@@ -8,9 +8,21 @@ from _logger import logger
 
 
 class FilterSellOnStationProtocol:
+    """
+    This is prototype to define filter which checks if commodity stored on carrier can be sold on station.
+    """
+
     def is_buying(self, what: CarrierCargoPosition) -> bool: ...
 
+    """
+    Returns True if station related to this filter buys param: what.
+    """
+
     def is_not(self, station_name: str) -> bool: ...
+
+    """
+    Station related to this filter is not param: station_name.
+    """
 
 
 class FilterSellOnDockedStation(FilterSellOnStationProtocol):
