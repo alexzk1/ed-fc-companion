@@ -93,11 +93,26 @@ class MainUiFrame(tk.Frame):
         logger.debug(
             f"Active pane {self._tool_planes.active_plane_frame}, docking pane {self._docked}."
         )
+
+        # Check if "Docked" plane is activated by user.
         if type(self).is_ancestor(self._tool_planes.active_plane_frame, self._docked):
             logger.debug(f"Active 'Docked' plane, event {event}")
             self._handle_docking_events(event, station)
 
     def _handle_docking_events(self, event: Any, station: str | None):
+        """
+        Handle docking-related events when the "Docked" plane is active in the GUI.
+
+        Depending on the event type, triggers appropriate updates for the docking state:
+        - For "Docked" event, schedules a delayed update to allow market data to be ready.
+        - For "StartUp" and "Market", triggers an immediate update.
+        - For "Undocked", clears the docked state immediately.
+        - Ignores other unrelated events.
+
+        Parameters:
+            event (Any): The docking event name as a string.
+            station (Optional[str]): The station name relevant to the event.
+        """
         if event not in ["StartUp", "Market", "Undocked", "Docked"]:
             logger.debug(f"_handle_docking_events: ignoring {event}")
             return
