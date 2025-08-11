@@ -4,7 +4,7 @@ from typing import Any, Optional
 from carrier_cargo_position import CarrierCargoPosition
 from icons_cache import IconsCache
 from rows_rclick_menu import RightClickContextMenuForTable
-from sell_on_station import FilterSellOnDockedStation, FilterSellOnStationProtocol
+from sell_on_station import FilterSellOnStationProtocol
 from theme import theme
 from translation import ptl
 import tkinter.font as tkfont
@@ -19,26 +19,25 @@ class CanvasTableView:
     _PAD_Y_PER_ROW = 3
     _PAD_X_FOR_SCROLL_BAR = 30
 
-    # New column should be added in 4 places: _COLUMNS, _ATTRIBUTES_PER_COL, _HEADER_ATTRIBUTES, _COLUMN_WIDTH
-    # last column is autoresized to fix
-    _COLUMNS = [
-        "category",
-        "amount",
-        "name",
-    ]  # Can be used instead indexes.
-    _ATTRIBUTES_PER_COL = [
-        {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.RIGHT, "anchor": tk.NW},
-    ]
-    _HEADER_ATTRIBUTES_PER_COLUMN = [
-        {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.LEFT, "anchor": tk.NW},
-        {"justify": tk.RIGHT, "anchor": tk.NW},
-    ]
-
     def __init__(self, parent: tk.Widget) -> None:
+        # New column should be added in 4 places: _COLUMNS, _ATTRIBUTES_PER_COL, _HEADER_ATTRIBUTES, _COLUMN_WIDTH
+        # last column is autoresized to fit
         self._COLUMN_WIDTH: list[int] = [140, 80, 100]
+        self._COLUMNS = [
+            "category",
+            "amount",
+            "name",
+        ]  # Can be used instead indexes.
+        self._ATTRIBUTES_PER_COL = [
+            {"justify": tk.LEFT, "anchor": tk.NW},
+            {"justify": tk.LEFT, "anchor": tk.NW},
+            {"justify": tk.RIGHT, "anchor": tk.NW},
+        ]
+        self._HEADER_ATTRIBUTES_PER_COLUMN = [
+            {"justify": tk.LEFT, "anchor": tk.NW},
+            {"justify": tk.LEFT, "anchor": tk.NW},
+            {"justify": tk.RIGHT, "anchor": tk.NW},
+        ]
 
         self.parent_frame = parent
         self._font = tkfont.Font()

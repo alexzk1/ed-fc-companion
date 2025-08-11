@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from typing import Any, Optional
+from typing import Optional
 from _logger import logger
 from ui_table import CanvasTableView
 import carrier_helpers
@@ -16,13 +16,13 @@ class UiDockedUndocked(tk.Frame):
 
     _normal_button_text: str = translation.ptl("Highlight for Current Station")
 
-    def __init__(self, output_table: CanvasTableView, *args, **kwargs):
+    def __init__(self, output_table: CanvasTableView, *args, **kwargs):  # type: ignore
         """
         Pane that handles:
         - 'follow dock' mode (auto filter on dock)
         - 'freeze' mode (manual apply for current station)
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # type: ignore
 
         self.columnconfigure(0, weight=1)
 

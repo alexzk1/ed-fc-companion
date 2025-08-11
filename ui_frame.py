@@ -42,8 +42,8 @@ class MainUiFrame(tk.Frame):
     This class handles signal "on cargo changed" from carrier.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):  # type: ignore
+        super().__init__(*args, **kwargs)  # type: ignore
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
