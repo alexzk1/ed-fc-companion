@@ -385,6 +385,6 @@ class CanvasTableView:
 
         return row, col
 
-    def set_cargo_colorer(self, colorer: Optional[FilterSellOnStationProtocol]):
+    def set_cargo_highlighter(self, colorer: Optional[FilterSellOnStationProtocol]):
         self._color_market_on_station = colorer
         self.populate_colored_carrier_data()

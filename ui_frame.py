@@ -1,10 +1,11 @@
-from typing import Any, Optional
 from ui_docked_undocked import UiDockedUndocked
+from ui_navigation import UiNavigationPlane
 from ui_multy_planes_widget import MultiPlanesWidget, PlaneSwitch
-
 from ui_table import CanvasTableView
+
 import tkinter as tk
 from _logger import logger
+from typing import Any, Optional
 import fleetcarriercargo
 import weakref
 import translation
@@ -53,16 +54,27 @@ class MainUiFrame(tk.Frame):
         planes = MultiPlanesWidget(
             [SwitchesModes.Cargo, SwitchesModes.Highlighting], self
         )
-        self._table_view = CanvasTableView(planes.plane_frames[SwitchesModes.Cargo])
-        self._tool_planes = MultiPlanesWidget(
+        self._cargo_table_view = CanvasTableView(
+            planes.plane_frames[SwitchesModes.Cargo]
+        )
+        self._highlights_planes = MultiPlanesWidget(
             [SwitchesModes.Docked, SwitchesModes.Navigated],
             planes.plane_frames[SwitchesModes.Highlighting],
         )
 
+        # Highlights depend on docked state.
         self._docked = UiDockedUndocked(
-            self._table_view, self._tool_planes.plane_frames[SwitchesModes.Docked]
+            self._cargo_table_view,
+            self._highlights_planes.plane_frames[SwitchesModes.Docked],
         )
-        self._docked.pack(anchor="nw", padx=10, pady=10)
+        self._docked.pack(anchor="nw", padx=5, pady=5)
+
+        # Highlights depend on navigation state
+        self._navigating = UiNavigationPlane(
+            self._cargo_table_view,
+            self._highlights_planes.plane_frames[SwitchesModes.Navigated],
+        )
+        self._navigating.pack(anchor="nw", padx=5, pady=5)
 
         weakself = weakref.ref(self)
 
@@ -75,7 +87,7 @@ class MainUiFrame(tk.Frame):
 
     def _cargo_on_carrier_updated(self):
         logger.debug("Got carrier update signal.")
-        self._table_view.populate_colored_carrier_data()
+        self._cargo_table_view.populate_colored_carrier_data()
 
     def journal_entry(
         self,
@@ -87,15 +99,19 @@ class MainUiFrame(tk.Frame):
         state: dict[str, Any],
     ):
         event = entry.get("event")
+        self._navigating.get_systems_receiver().set_current_system(system)
+
         logger.debug(f"Received event: {event}")
         if event == "StartUp":
-            self._table_view.populate_colored_carrier_data()
+            self._cargo_table_view.populate_colored_carrier_data()
         logger.debug(
-            f"Active pane {self._tool_planes.active_plane_frame}, docking pane {self._docked}."
+            f"Active pane {self._highlights_planes.active_plane_frame}, docking pane {self._docked}."
         )
 
         # Check if "Docked" plane is activated by user.
-        if type(self).is_ancestor(self._tool_planes.active_plane_frame, self._docked):
+        if type(self).is_ancestor(
+            self._highlights_planes.active_plane_frame, self._docked
+        ):
             logger.debug(f"Active 'Docked' plane, event {event}")
             self._handle_docking_events(event, station)
 

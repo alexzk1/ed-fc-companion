@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional
 from _logger import logger
+from ui_base_filter_plane import UiBaseFilteredPlane
 from ui_table import CanvasTableView
 import carrier_helpers
 import translation
@@ -9,25 +10,20 @@ from sell_on_station import FilterSellOnDockedStation
 from ui_tooltip import Tooltip
 
 
-class UiDockedUndocked(tk.Frame):
+class UiDockedUndocked(UiBaseFilteredPlane):
     """
     This is pane handles "show for each dock" and "keep showing for current dock".
     """
 
     _normal_button_text: str = translation.ptl("Highlight for Current Station")
 
-    def __init__(self, output_table: CanvasTableView, *args, **kwargs):  # type: ignore
+    def __init__(self, target_table: CanvasTableView, *args, **kwargs):  # type: ignore
         """
         Pane that handles:
         - 'follow dock' mode (auto filter on dock)
         - 'freeze' mode (manual apply for current station)
         """
-        super().__init__(*args, **kwargs)  # type: ignore
-
-        self.columnconfigure(0, weight=1)
-
-        self._output: CanvasTableView = output_table
-        self._current_filter: Optional[FilterSellOnDockedStation] = None
+        super().__init__(target_table, *args, **kwargs)  # type: ignore
 
         self.follow_var = tk.BooleanVar(value=False)
         cb = ttk.Checkbutton(
@@ -60,19 +56,19 @@ class UiDockedUndocked(tk.Frame):
             logger.debug("Called docked_to() without station name.")
             return
         self._update_freeze_button(station)
-        self._current_filter = FilterSellOnDockedStation(station)
+        self._set_current_highlighter(FilterSellOnDockedStation(station))
 
         if self.follow_var.get():
             # Follow mode: create & install filter immediately
-            self._output.set_cargo_colorer(self._current_filter)
+            self._activate_current_highlighter()
             self._frozen = False
 
     def undocked(self) -> None:
         self._update_freeze_button(None)
-        self._current_filter = None
+        self._set_current_highlighter(None)
         if self.follow_var.get() or not self._frozen:
             # Follow mode: remove filter on undock
-            self._output.set_cargo_colorer(None)
+            self._activate_current_highlighter()
 
     def _update_freeze_button(self, station: str | None):
         """Change Freeze button depend if we're docked properly."""
@@ -92,10 +88,10 @@ class UiDockedUndocked(tk.Frame):
 
         self.follow_var.set(False)
 
-        if not self._current_filter:
+        if not self._current_highlight_filter:
             logger.warning(
                 "It is unexpected that button could be pressed without _current_filter set."
             )
             return
+        self._activate_current_highlighter()
         self._frozen = True
-        self._output.set_cargo_colorer(self._current_filter)

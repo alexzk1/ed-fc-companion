@@ -1,0 +1,443 @@
+{
+    "id": 27,
+    "id64": 10477373803,
+    "name": "Sol",
+    "marketId": 3802408704,
+    "sId": 88172,
+    "sName": "Kvitka Dredging Enterprise",
+    "url": "https:\/\/www.edsm.net\/en\/system\/stations\/id\/27\/name\/Sol\/details\/facility\/market\/idS\/88172\/nameS\/Kvitka+Dredging+Enterprise",
+    "commodities": [
+        {
+            "id": "advancedmedicines",
+            "name": "Advanced Medicines",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1580,
+            "demand": 229,
+            "stockBracket": 0
+        },
+        {
+            "id": "agronomictreatment",
+            "name": "Agronomic Treatment",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 3519,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "animalmeat",
+            "name": "Animal Meat",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1740,
+            "demand": 197,
+            "stockBracket": 0
+        },
+        {
+            "id": "basicmedicines",
+            "name": "Basic Medicines",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 439,
+            "demand": 16,
+            "stockBracket": 0
+        },
+        {
+            "id": "bauxite",
+            "name": "Bauxite",
+            "buyPrice": 713,
+            "stock": 2670,
+            "sellPrice": 712,
+            "demand": 1,
+            "stockBracket": 3
+        },
+        {
+            "id": "beer",
+            "name": "Beer",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 665,
+            "demand": 973,
+            "stockBracket": 0
+        },
+        {
+            "id": "bioreducinglichen",
+            "name": "Bioreducing Lichen",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1517,
+            "demand": 5347,
+            "stockBracket": 0
+        },
+        {
+            "id": "blackbox",
+            "name": "Black Box",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 30668,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "buildingfabricators",
+            "name": "Building Fabricators",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 2142,
+            "demand": 137,
+            "stockBracket": 0
+        },
+        {
+            "id": "clothing",
+            "name": "Clothing",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 315,
+            "demand": 187,
+            "stockBracket": 0
+        },
+        {
+            "id": "cobalt",
+            "name": "Cobalt",
+            "buyPrice": 2806,
+            "stock": 3867,
+            "sellPrice": 2805,
+            "demand": 1,
+            "stockBracket": 2
+        },
+        {
+            "id": "coffee",
+            "name": "Coffee",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1740,
+            "demand": 57,
+            "stockBracket": 0
+        },
+        {
+            "id": "consumertechnology",
+            "name": "Consumer Technology",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 7266,
+            "demand": 103,
+            "stockBracket": 0
+        },
+        {
+            "id": "damagedescapepod",
+            "name": "Damaged Escape Pod",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 16657,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "domesticappliances",
+            "name": "Domestic Appliances",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 658,
+            "demand": 61,
+            "stockBracket": 0
+        },
+        {
+            "id": "evacuationshelter",
+            "name": "Evacuation Shelter",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 691,
+            "demand": 10,
+            "stockBracket": 0
+        },
+        {
+            "id": "explosives",
+            "name": "Explosives",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 799,
+            "demand": 7846,
+            "stockBracket": 0
+        },
+        {
+            "id": "fish",
+            "name": "Fish",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 914,
+            "demand": 564,
+            "stockBracket": 0
+        },
+        {
+            "id": "foodcartridges",
+            "name": "Food Cartridges",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 264,
+            "demand": 13,
+            "stockBracket": 0
+        },
+        {
+            "id": "fruitandvegetables",
+            "name": "Fruit and Vegetables",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 691,
+            "demand": 203,
+            "stockBracket": 0
+        },
+        {
+            "id": "geologicalequipment",
+            "name": "Geological Equipment",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1766,
+            "demand": 241,
+            "stockBracket": 0
+        },
+        {
+            "id": "goslarite",
+            "name": "Goslarite",
+            "buyPrice": 3958,
+            "stock": 1186,
+            "sellPrice": 3957,
+            "demand": 1,
+            "stockBracket": 3
+        },
+        {
+            "id": "grain",
+            "name": "Grain",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 697,
+            "demand": 1245,
+            "stockBracket": 0
+        },
+        {
+            "id": "hazardousenvironmentsuits",
+            "name": "H.E. Suits",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 771,
+            "demand": 3480,
+            "stockBracket": 0
+        },
+        {
+            "id": "hostage",
+            "name": "Hostage",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 34249,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "hydrogenfuel",
+            "name": "Hydrogen Fuel",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 164,
+            "demand": 427,
+            "stockBracket": 0
+        },
+        {
+            "id": "liquor",
+            "name": "Liquor",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 758,
+            "demand": 16,
+            "stockBracket": 0
+        },
+        {
+            "id": "mineralextractors",
+            "name": "Mineral Extractors",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 589,
+            "demand": 403,
+            "stockBracket": 0
+        },
+        {
+            "id": "mutomimager",
+            "name": "Muon Imager",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 6367,
+            "demand": 31,
+            "stockBracket": 0
+        },
+        {
+            "id": "nonlethalweapons",
+            "name": "Non-Lethal Weapons",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1934,
+            "demand": 4,
+            "stockBracket": 0
+        },
+        {
+            "id": "occupiedcryopod",
+            "name": "Occupied Escape Pod",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 30017,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "performanceenhancers",
+            "name": "Performance Enhancers",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 7266,
+            "demand": 168,
+            "stockBracket": 0
+        },
+        {
+            "id": "personaleffects",
+            "name": "Personal Effects",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 9346,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "powergenerators",
+            "name": "Power Generators",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 2456,
+            "demand": 26,
+            "stockBracket": 0
+        },
+        {
+            "id": "pyrophyllite",
+            "name": "Pyrophyllite",
+            "buyPrice": 8941,
+            "stock": 569,
+            "sellPrice": 8940,
+            "demand": 1,
+            "stockBracket": 2
+        },
+        {
+            "id": "reactivearmour",
+            "name": "Reactive Armour",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 2174,
+            "demand": 7,
+            "stockBracket": 0
+        },
+        {
+            "id": "skimmercomponents",
+            "name": "Skimmer Components",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1125,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "structuralregulators",
+            "name": "Structural Regulators",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 2252,
+            "demand": 20,
+            "stockBracket": 0
+        },
+        {
+            "id": "surfacestabilisers",
+            "name": "Surface Stabilisers",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1053,
+            "demand": 1783,
+            "stockBracket": 0
+        },
+        {
+            "id": "survivalequipment",
+            "name": "Survival Equipment",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 722,
+            "demand": 1,
+            "stockBracket": 0
+        },
+        {
+            "id": "syntheticmeat",
+            "name": "Synthetic Meat",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 623,
+            "demand": 131,
+            "stockBracket": 0
+        },
+        {
+            "id": "tea",
+            "name": "Tea",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 1925,
+            "demand": 180,
+            "stockBracket": 0
+        },
+        {
+            "id": "thermalcoolingunits",
+            "name": "Thermal Cooling Units",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 3806,
+            "demand": 20,
+            "stockBracket": 0
+        },
+        {
+            "id": "unocuppiedescapepod",
+            "name": "Unoccupied Escape Pod",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 3955,
+            "demand": 3,
+            "stockBracket": 0
+        },
+        {
+            "id": "water",
+            "name": "Water",
+            "buyPrice": 48,
+            "stock": 9377,
+            "sellPrice": 10,
+            "demand": 1,
+            "stockBracket": 2
+        },
+        {
+            "id": "waterpurifiers",
+            "name": "Water Purifiers",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 424,
+            "demand": 79,
+            "stockBracket": 0
+        },
+        {
+            "id": "wine",
+            "name": "Wine",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 746,
+            "demand": 828,
+            "stockBracket": 0
+        },
+        {
+            "id": "wreckagecomponents",
+            "name": "Wreckage Components",
+            "buyPrice": 0,
+            "stock": 0,
+            "sellPrice": 8773,
+            "demand": 22,
+            "stockBracket": 0
+        }
+    ]
+}
