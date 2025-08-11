@@ -48,6 +48,8 @@ class MainUiFrame(tk.Frame):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(1, weight=1)
 
+        self._docked_call_after_id = None
+
         planes = MultiPlanesWidget(
             [SwitchesModes.Cargo, SwitchesModes.Highlighting], self
         )
@@ -96,30 +98,26 @@ class MainUiFrame(tk.Frame):
             self._handle_docking_events(event, station)
 
     def _handle_docking_events(self, event: Any, station: str | None):
-        if not hasattr(self, "_docked_call_after_id"):
+        if event not in ["StartUp", "Market", "Undocked", "Docked"]:
+            logger.debug(f"_handle_docking_events: ignoring {event}")
+            return
+        logger.debug(f"_handle_docking_events: processing {event}")
+
+        # If we're here we must stop the timer (depend on event it can be 2 different reasons though).
+        if self._docked_call_after_id is not None:
+            self.after_cancel(self._docked_call_after_id)
             self._docked_call_after_id = None
 
-        if event in ("StartUp", "Market", "Undocked"):
-            if self._docked_call_after_id is not None:
-                self.after_cancel(self._docked_call_after_id)
-                self._docked_call_after_id = None
-
-            if event == "Undocked":
-                self._docked.undocked()
-            else:
-                self._do_docked_to(station)
-
-        elif event == "Docked":
-            if self._docked_call_after_id is not None:
-                self.after_cancel(self._docked_call_after_id)
-
+        if event == "Undocked":
+            self._docked.undocked()
+        else:
+            # Delayed "docked" because market data file on disk maybe absent yet.
+            delay = 1000 if event == "Docked" else 50
             self._docked_call_after_id = self.after(
-                1000, lambda: self._do_docked_to(station)
+                delay,
+                lambda: setattr(self, "_docked_call_after_id", None)
+                or self._docked.docked_to(station),
             )
-
-    def _do_docked_to(self, station: str | None):
-        self._docked_call_after_id = None
-        self._docked.docked_to(station)
 
     @staticmethod
     def is_ancestor(ancestor: tk.Widget, widget: tk.Widget) -> bool:
