@@ -19,7 +19,7 @@ class PlaneSwitch:
 @dataclass
 class _SinglePlane:
     panel: tk.Frame
-    button: tk.Button
+    button: Optional[tk.Button]
 
 
 class MultiPlanesWidget(tk.Frame):
@@ -45,7 +45,13 @@ class MultiPlanesWidget(tk.Frame):
         def __contains__(self, key: object) -> bool:
             return key in self._source
 
-    def __init__(self, planes: list[PlaneSwitch], parent: tk.Widget, **kwargs):  # type: ignore
+    def __init__(
+        self,
+        planes: list[PlaneSwitch],
+        create_visual_buttons: bool,
+        parent: tk.Widget,
+        **kwargs,  # type: ignore
+    ):
         """
         Initialize MultiPlanesWidget.
 
@@ -54,14 +60,18 @@ class MultiPlanesWidget(tk.Frame):
                             Each name will have dedicated frame accessed over .plane_frames["name"]
                             where children can be placed.
                             When button is pressed corresponding plane is visible and others are invisible.
+
+            create_visual_buttons (bool): If False, it will be no visual buttons and you can select active plane via
+                            call to .activate_plane("NAME")
+
             parent (tk.Widget): Must support free resizings inside, you may want to call
                             parent.columnconfigure(0, weight=1)
                             parent.rowconfigure(1, weight=1)
         """
         super().__init__(parent, **kwargs)  # pyright: ignore[reportUnknownArgumentType]
-        self.grid(row=0, column=0, sticky=tk.EW)
+        self.grid(row=0, column=0, sticky=tk.NW)
 
-        self.__planes: dict[str, _SinglePlane] = {}
+        self._planes: dict[str, _SinglePlane] = {}
         self._selected_plane: str = ""
 
         for plane in planes:
@@ -70,31 +80,40 @@ class MultiPlanesWidget(tk.Frame):
             panel.grid(row=1, column=0, sticky=tk.NSEW)
             panel.grid_rowconfigure(0, weight=1)
             panel.grid_columnconfigure(0, weight=1)
-            button = tk.Button(
-                self,
-                text=name,
-                command=lambda n=name: self._process_pane_button_click(n),
-            )
-            button.grid(row=0, column=len(self.__planes), sticky=tk.EW)
-            if plane.tooltip:
-                Tooltip(button, plane.tooltip)
-            self.__planes[name] = _SinglePlane(panel=panel, button=button)
-        if planes and len(planes) > 0:
-            self._process_pane_button_click(planes[0].text)
 
-    def _process_pane_button_click(self, name: str):
-        selected_plane = self.__planes.get(name, None)
+            button: Optional[tk.Button] = None
+            if create_visual_buttons:
+                button = tk.Button(
+                    self,
+                    text=name,
+                    command=lambda n=name: self.activate_plane(n),
+                )
+                button.grid(row=0, column=len(self._planes), sticky=tk.NW)
+                if plane.tooltip:
+                    Tooltip(button, plane.tooltip)
+            self._planes[name] = _SinglePlane(panel=panel, button=button)
+
+        if planes and len(planes) > 0:
+            self.activate_plane(planes[0].text)
+
+    def activate_plane(self, name: str):
+        """
+        Activates plane by given name.
+        """
+        selected_plane = self._planes.get(name, None)
         if selected_plane:
             self._selected_plane = name
-            for plane in self.__planes.values():
-                plane.button.config(relief=tk.RAISED, state=tk.NORMAL)
+            for plane in self._planes.values():
+                if plane.button:
+                    plane.button.config(relief=tk.RAISED, state=tk.NORMAL)
                 plane.panel.grid_remove()
-            selected_plane.button.config(relief=tk.SUNKEN, state=tk.DISABLED)
+            if selected_plane.button:
+                selected_plane.button.config(relief=tk.SUNKEN, state=tk.DISABLED)
             selected_plane.panel.grid()
 
     @property
     def plane_frames(self) -> Mapping[str | PlaneSwitch, tk.Frame]:
-        return MultiPlanesWidget._PlaneDictView(self.__planes)
+        return MultiPlanesWidget._PlaneDictView(self._planes)
 
     @property
     def active_plane_frame(self) -> tk.Frame:
