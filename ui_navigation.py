@@ -56,8 +56,9 @@ class UiNavigationPlane(tk.Frame):
                 _NavigationPlanes.NavigatedStationSelect
             ],
         )
-
-        self.pack(anchor="nw", padx=1, pady=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid(row=0, column=0, sticky="nsew")
 
     def get_systems_receiver(self) -> SystemNamesReceiver:
         """

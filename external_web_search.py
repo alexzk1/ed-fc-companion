@@ -143,7 +143,7 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
         buys = {
             commodity_obj.id
             for item in data.get("commodities", [])
-            if item.get("demand", 0) > 0 and "id" in item
+            if item.get("stock", 0) == 0 and item.get("demand", 0) > 0 and "id" in item
             for commodity_obj in [MarketCatalogue.explain_commodity(item["id"])]
             if commodity_obj is not None
         }
