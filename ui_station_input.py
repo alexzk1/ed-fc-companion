@@ -31,6 +31,7 @@ class UiStationInput(UiBaseFilteredPlane):
             self._delayed_check_in_ui_thread()
 
     def _receive_edsm_data_in_ui_thread(self):
+        self._check_retries += 1
         try:
             stations = self._edsm_data_queue.get_nowait()
         except queue.Empty:
