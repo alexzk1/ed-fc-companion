@@ -88,6 +88,8 @@ class UiStationInput(UiBaseFilteredPlane):
         stations_per_ui_name: dict[str, list[FilteredStation]] = {}
         for category, category_stations in stations.items():
             ui_name, _ = type(self).map_station_type(category)
+            if not ui_name:
+                continue
             stations_per_ui_name.setdefault(ui_name, []).extend(category_stations)
 
         for ui_name, stations_list in stations_per_ui_name.items():
@@ -133,6 +135,9 @@ class UiStationInput(UiBaseFilteredPlane):
     @staticmethod
     def map_station_type(port_type: str) -> tuple[str, str]:
         # TODO: return empty string "" to exclude port_type
+        if not port_type:
+            return "", ""
+
         if (
             "Starport" in port_type
             or port_type == "Outpost"
