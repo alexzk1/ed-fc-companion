@@ -14,6 +14,7 @@ class PlaneSwitch:
 
     text: str
     tooltip: Optional[str] = None
+    has_button: bool = True
 
 
 @dataclass
@@ -48,7 +49,6 @@ class MultiPlanesWidget(tk.Frame):
     def __init__(
         self,
         planes: list[PlaneSwitch],
-        create_visual_buttons: bool,
         parent: tk.Widget,
         **kwargs,  # type: ignore
     ):
@@ -60,9 +60,6 @@ class MultiPlanesWidget(tk.Frame):
                             Each name will have dedicated frame accessed over .plane_frames["name"]
                             where children can be placed.
                             When button is pressed corresponding plane is visible and others are invisible.
-
-            create_visual_buttons (bool): If False, it will be no visual buttons and you can select active plane via
-                            call to .activate_plane("NAME")
 
             parent (tk.Widget): Must support free resizings inside, you may want to call
                             parent.columnconfigure(0, weight=1)
@@ -82,7 +79,7 @@ class MultiPlanesWidget(tk.Frame):
             panel.grid_columnconfigure(0, weight=1)
 
             button: Optional[tk.Button] = None
-            if create_visual_buttons:
+            if plane.has_button:
                 button = tk.Button(
                     self,
                     text=name,

@@ -52,14 +52,13 @@ class MainUiFrame(tk.Frame):
         self._docked_call_after_id = None
 
         planes = MultiPlanesWidget(
-            [SwitchesModes.Cargo, SwitchesModes.Highlighting], True, self
+            [SwitchesModes.Cargo, SwitchesModes.Highlighting], self
         )
         self._cargo_table_view = CanvasTableView(
             planes.plane_frames[SwitchesModes.Cargo]
         )
         self._highlights_planes = MultiPlanesWidget(
             [SwitchesModes.Docked, SwitchesModes.Navigated],
-            True,
             planes.plane_frames[SwitchesModes.Highlighting],
         )
 
