@@ -83,6 +83,8 @@ class UiStationInput(UiBaseFilteredPlane):
         planes_by_type = [PlaneSwitch(pt[0], pt[1]) for pt in sorted(mapped_types)]
         self._visible_stations = MultiPlanesWidget(planes_by_type, self)
 
+        # Some couple station types could be re-mapped to the same UI name.
+        # We must keep exact lists visible and stored, becaus listbox gives us index.
         stations_per_ui_name: dict[str, list[FilteredStation]] = {}
         for category, category_stations in stations.items():
             ui_name, _ = type(self).map_station_type(category)
@@ -145,7 +147,7 @@ class UiStationInput(UiBaseFilteredPlane):
             )
         if port_type == "Odyssey Settlement":
             return translation.ptl("3.Settlement"), translation.ptl(
-                "Odessey Planetary Settlements."
+                "Odyssey Planetary Settlements."
             )
 
         if port_type == "Fleet Carrier":
