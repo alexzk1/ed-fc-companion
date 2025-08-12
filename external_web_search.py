@@ -133,6 +133,7 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
         resp.raise_for_status()
         data = resp.json()
 
+        # EDSM gives string "commodity" as "id" field. We want to parse numeric ID out of it.
         buys = {
             commodity_obj.id
             for item in data.get("commodities", [])
