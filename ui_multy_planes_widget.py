@@ -66,14 +66,22 @@ class MultiPlanesWidget(tk.Frame):
                             parent.rowconfigure(1, weight=1)
         """
         super().__init__(parent, **kwargs)  # pyright: ignore[reportUnknownArgumentType]
-        self.grid(row=0, column=0, sticky=tk.NW)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+
+        # Buttons panel.
+        self._buttons_frame: Optional[tk.Frame] = None
+        for plane in planes:
+            if plane.has_button:
+                self._buttons_frame = tk.Frame(self)
+                self._buttons_frame.grid(row=0, column=0, sticky=tk.NW)
+                break
 
         self._planes: dict[str, _SinglePlane] = {}
         self._selected_plane: str = ""
 
         for plane in planes:
             name = plane.text
-            panel = tk.Frame(parent)
+            panel = tk.Frame(self)
             panel.grid(row=1, column=0, sticky=tk.NSEW)
             panel.grid_rowconfigure(0, weight=1)
             panel.grid_columnconfigure(0, weight=1)
@@ -81,7 +89,7 @@ class MultiPlanesWidget(tk.Frame):
             button: Optional[tk.Button] = None
             if plane.has_button:
                 button = tk.Button(
-                    self,
+                    self._buttons_frame,
                     text=name,
                     command=lambda n=name: self.activate_plane(n),
                 )
@@ -89,6 +97,9 @@ class MultiPlanesWidget(tk.Frame):
                 if plane.tooltip:
                     Tooltip(button, plane.tooltip)
             self._planes[name] = _SinglePlane(panel=panel, button=button)
+
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
         if planes and len(planes) > 0:
             self.activate_plane(planes[0])
@@ -110,7 +121,7 @@ class MultiPlanesWidget(tk.Frame):
                 plane.panel.grid_remove()
             if selected_plane.button:
                 selected_plane.button.config(relief=tk.SUNKEN, state=tk.DISABLED)
-            selected_plane.panel.grid()
+            selected_plane.panel.grid(row=1, column=0, sticky=tk.NSEW)
 
     @property
     def plane_frames(self) -> Mapping[str | PlaneSwitch, tk.Frame]:

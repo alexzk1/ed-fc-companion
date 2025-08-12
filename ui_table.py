@@ -42,7 +42,7 @@ class CanvasTableView:
         self.parent_frame = parent
         self._font = tkfont.Font()
         self._frame = tk.Frame(parent, pady=3, padx=3)
-        self._frame.grid(sticky=tk.NSEW)
+        self._frame.grid(row=0, column=0, sticky=tk.NSEW)
         self._canvas: Optional[tk.Canvas] = None
 
         theme.update(self._frame)
@@ -112,7 +112,7 @@ class CanvasTableView:
                 highlightthickness=0,
                 scrollregion=(0, 0, self._TABLE_WIDTH, minimal_height_to_set),
             )
-            self._canvas.pack()
+            self._canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             frame = tk.Frame(self._frame)
             frame.pack(side=tk.RIGHT, fill=tk.Y)
             vbar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=self._canvas.yview)  # type: ignore
