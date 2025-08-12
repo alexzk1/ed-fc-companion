@@ -74,7 +74,6 @@ class MainUiFrame(tk.Frame):
             self._cargo_table_view,
             self._highlights_planes.plane_frames[SwitchesModes.Navigated],
         )
-        self._navigating.pack(anchor="nw", padx=5, pady=5)
 
         weakself = weakref.ref(self)
 

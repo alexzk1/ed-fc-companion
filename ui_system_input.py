@@ -97,6 +97,7 @@ class UiSystemInput(tk.Frame, SystemNamesReceiver):
         )
         Tooltip(btn_selected, translation.ptl("Use currently targeted on map system."))
         btn_selected.grid(row=1, column=2, padx=0)
+        self.grid(row=0, column=0, sticky="nw", padx=3, pady=3)
 
     def get_system_name(self) -> str:
         """

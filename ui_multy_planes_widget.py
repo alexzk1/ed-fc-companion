@@ -91,12 +91,16 @@ class MultiPlanesWidget(tk.Frame):
             self._planes[name] = _SinglePlane(panel=panel, button=button)
 
         if planes and len(planes) > 0:
-            self.activate_plane(planes[0].text)
+            self.activate_plane(planes[0])
 
-    def activate_plane(self, name: str):
+    def activate_plane(self, plane_name: str | PlaneSwitch):
         """
         Activates plane by given name.
         """
+        name: str = (
+            plane_name.text if isinstance(plane_name, PlaneSwitch) else plane_name
+        )
+
         selected_plane = self._planes.get(name, None)
         if selected_plane:
             self._selected_plane = name

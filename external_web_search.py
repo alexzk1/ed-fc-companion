@@ -64,10 +64,13 @@ class EdsmCachedAccess:
 
     @classmethod
     def get_stations_in_system(cls, system_name: str) -> EdsmPerStationTypeResponse:
+        """
+        Returns processed list of the stations for out limited purposes, groupped by station's type.
+        """
         with cls._mutex:
             if system_name not in cls._stations_per_system:
                 cls._stations_per_system[system_name] = cls._filter_and_group_stations(
-                    cls.get_edsm_stations_in_system(system_name)
+                    cls.get_raw_edsm_stations_in_system(system_name)
                 )
             return cls._stations_per_system[system_name]
 
@@ -92,7 +95,10 @@ class EdsmCachedAccess:
         return grouped
 
     @staticmethod
-    def get_edsm_stations_in_system(system_name: str) -> EdsmResponse:
+    def get_raw_edsm_stations_in_system(system_name: str) -> EdsmResponse:
+        """
+        Returns raw response from EDSM as json object.
+        """
         if not system_name:
             return []
 
