@@ -8,6 +8,7 @@ import carrier_helpers
 import translation
 from sell_on_station import FilterSellOnDockedStation
 from ui_tooltip import Tooltip
+import fleetcarriercargo
 
 
 class UiDockedUndocked(UiBaseFilteredPlane):
@@ -51,6 +52,20 @@ class UiDockedUndocked(UiBaseFilteredPlane):
         )
         self._frozen = False
 
+        self._update_btn = ttk.Button(
+            self,
+            text=translation.ptl("Get Crew Report"),
+            command=self._update_fc_on_click,
+        )
+        self._update_btn.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        Tooltip(
+            self._update_btn,
+            translation.ptl(
+                "Requests a report from the carrier's crew about all current cargo when you're docked on own carrier."
+            ),
+        )
+        self._update_btn.state(["disabled"])  # type: ignore
+
     def docked_to(self, station: Optional[str]):
         if not station:
             logger.debug("Called docked_to() without station name.")
@@ -72,12 +87,16 @@ class UiDockedUndocked(UiBaseFilteredPlane):
 
     def _update_freeze_button(self, station: str | None):
         """Change Freeze button depend if we're docked properly."""
-        is_wrong_station = not station or station == carrier_helpers.get_carrier_name()
+        self._update_btn.state(["disabled"])  # type: ignore
+        is_carrier: bool = station == carrier_helpers.get_carrier_name()
+        is_wrong_station = not station or is_carrier
         logger.debug(
             f"updating freeze button, station {station}, wrong_station: {is_wrong_station} "
         )
         if is_wrong_station:
             self._freeze_btn.state(["disabled"])  # type: ignore
+            if is_carrier:
+                self._update_btn.state(["!disabled"])  # type: ignore
             self._freeze_btn.config(text=translation.ptl("Wrong Station"))
         else:
             self._freeze_btn.state(["!disabled"])  # type: ignore
@@ -95,3 +114,6 @@ class UiDockedUndocked(UiBaseFilteredPlane):
             return
         self._activate_current_highlighter()
         self._frozen = True
+
+    def _update_fc_on_click(self):
+        fleetcarriercargo.FleetCarrierCargo.update_from_server()
