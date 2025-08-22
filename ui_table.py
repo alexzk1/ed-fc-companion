@@ -3,7 +3,7 @@ import tkinter as tk
 from typing import Any, Optional
 from carrier_cargo_position import CarrierCargoPosition
 from icons_cache import IconsCache
-from rows_rclick_menu import RightClickContextMenuForTable
+from cargo_rows_rclick_menu import RightClickContextMenuForTable
 from sell_on_station import FilterSellOnStationProtocol
 from theme import theme
 from translation import ptl

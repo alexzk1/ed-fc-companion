@@ -9,14 +9,20 @@ from sell_on_station import FilterSellOnStationProtocol
 from cargo_names import MarketCatalogue
 import carrier_helpers
 import translation
+import re
 
 
-def get_inara_commodity_url(commodity_name: str) -> str | None:
-    """
-    Gets link-endpoint on / from Inara for the commodity.
-    """
-    base = "https://inara.cz"
-    params = {"type": "GlobalSearch", "term": commodity_name}
+@dataclass
+class FilteredEdsmStation:
+    station_name: str
+    station_id: int
+    market_id: int
+    pads_information: str
+    system_name: str
+
+
+def _call_inara_search(what: str):
+    params = {"type": "GlobalSearch", "term": what}
     url = f"https://inara.cz/sites/elite/ajaxsearch.php"
 
     headers = {
@@ -33,8 +39,15 @@ def get_inara_commodity_url(commodity_name: str) -> str | None:
     body = response.text
     logger.debug(f"Inara query {response.url} response for link: {body}")
 
-    results = response.json()
+    return response.json()
 
+
+def get_inara_commodity_url(commodity_name: str) -> str | None:
+    """
+    Gets link-endpoint on / from Inara for the commodity.
+    """
+    base = "https://inara.cz"
+    results = _call_inara_search(commodity_name)
     for entry in results:
         label = entry.get("label", "")
         if label.startswith('<a href="/elite/commodity/'):
@@ -46,16 +59,21 @@ def get_inara_commodity_url(commodity_name: str) -> str | None:
     return None
 
 
-@dataclass
-class FilteredStation:
-    station_name: str
-    station_id: int
-    market_id: int
-    pads_information: str
+def get_inara_station_link(station: FilteredEdsmStation) -> str | None:
+    base = "https://inara.cz"
+    target = f"{station.station_name} | {station.system_name}"
+    results = _call_inara_search(station.station_name)
+    for entry in results:
+        if entry.get("value") == target:
+            # label содержит ссылку <a href="/elite/station/734697/">
+            m = re.search(r'href="([^"]+)"', entry["label"], re.IGNORECASE | re.DOTALL)
+            if m:
+                return f"{base}{m.group(1)}"  # например "/elite/station/734697/"
+    return None
 
 
 EdsmResponse: TypeAlias = list[dict[str, Any]]
-EdsmPerStationTypeResponse: TypeAlias = dict[str, list[FilteredStation]]
+EdsmPerStationTypeResponse: TypeAlias = dict[str, list[FilteredEdsmStation]]
 
 
 class EdsmCachedAccess:
@@ -73,13 +91,13 @@ class EdsmCachedAccess:
         with cls._mutex:
             if system_name not in cls._stations_per_system:
                 cls._stations_per_system[system_name] = cls._filter_and_group_stations(
-                    cls.get_raw_edsm_stations_in_system(system_name)
+                    cls.get_raw_edsm_stations_in_system(system_name), system_name
                 )
             return cls._stations_per_system[system_name]
 
     @staticmethod
     def _filter_and_group_stations(
-        stations: EdsmResponse,
+        stations: EdsmResponse, system: str
     ) -> EdsmPerStationTypeResponse:
         grouped: EdsmPerStationTypeResponse = defaultdict(list)
         carrier_name = carrier_helpers.get_carrier_name()
@@ -89,11 +107,12 @@ class EdsmCachedAccess:
                 continue
 
             station_type = station.get("type", "Unknown")
-            filtered_station = FilteredStation(
+            filtered_station = FilteredEdsmStation(
                 station_name=station.get("name", ""),
                 station_id=station.get("id", -1),
                 market_id=station.get("marketId", -1),
                 pads_information="",
+                system_name=system,
             )
             if filtered_station.station_name == carrier_name:
                 continue
@@ -128,11 +147,11 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
     # Key is marketId
     _cache_static: dict[int, Set[int]] = {}
 
-    def __init__(self, station: FilteredStation):
+    def __init__(self, station: FilteredEdsmStation):
         self._station = station
         self.__fetch_station_buys(station)
 
-    def __fetch_station_buys(self, station: FilteredStation) -> None:
+    def __fetch_station_buys(self, station: FilteredEdsmStation) -> None:
         """
         Gets and updates list of what station is buying from EDSM.
         Uses own local in-RAM cache too to relax EDSM.

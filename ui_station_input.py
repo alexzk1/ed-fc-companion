@@ -3,8 +3,9 @@ from external_web_search import (
     EdsmCachedAccess,
     EdsmPerStationTypeResponse,
     FilterSellFromEDSM,
-    FilteredStation,
+    FilteredEdsmStation,
 )
+from stations_rows_click_menu import RightClickContextMenuForStationsList
 from ui_base_filter_plane import UiBaseFilteredPlane
 from ui_multy_planes_widget import MultiPlanesWidget, PlaneSwitch
 from ui_table import CanvasTableView
@@ -85,7 +86,7 @@ class UiStationInput(UiBaseFilteredPlane):
 
         # Some couple station types could be re-mapped to the same UI name.
         # We must keep exact lists visible and stored, becaus listbox gives us index.
-        stations_per_ui_name: dict[str, list[FilteredStation]] = {}
+        stations_per_ui_name: dict[str, list[FilteredEdsmStation]] = {}
         for category, category_stations in stations.items():
             ui_name, _ = type(self).map_station_type(category)
             if not ui_name:
@@ -118,6 +119,11 @@ class UiStationInput(UiBaseFilteredPlane):
                     else f"{st.station_name}({st.pads_information})",
                 )
             listbox.bind("<<ListboxSelect>>", self._on_station_select)
+            listbox.bind(
+                "<Button-3>",
+                lambda event, lb=listbox: self._on_right_mouse_click(lb, event),  # type: ignore
+            )
+
         self.grid(row=0, column=0, sticky="nsew", padx=3, pady=3)
 
     def _on_station_select(self, event: Any):
@@ -136,6 +142,14 @@ class UiStationInput(UiBaseFilteredPlane):
     def _apply_highlighter(self, highlighter: FilterSellFromEDSM):
         self._set_current_highlighter(highlighter)
         self._activate_current_highlighter()
+
+    def _on_right_mouse_click(self, listbox: tk.Listbox, event: tk.Event):
+        index = listbox.nearest(event.y)  # type: ignore
+        logger.debug(f"Right mouse stations click at index {index}")
+        if index is not None:
+            station_obj: FilteredEdsmStation = listbox._stations_objects[index]  # type: ignore
+            menu = RightClickContextMenuForStationsList(listbox, station_obj)  # type: ignore
+            menu.popup(event)  # type: ignore
 
     @staticmethod
     def map_station_type(port_type: str) -> tuple[str, str]:

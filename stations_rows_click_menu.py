@@ -1,8 +1,11 @@
 import tkinter as tk
 from typing import Callable
 import webbrowser
-from carrier_cargo_position import CarrierCargoPosition
-from external_web_search import get_inara_commodity_url
+from external_web_search import (
+    FilteredEdsmStation,
+    get_inara_station_link,
+)
+import translation
 
 
 class _MenuCommand:
@@ -17,27 +20,23 @@ class _MenuSeparator:
     pass
 
 
-class RightClickContextMenuForTable:
-    def __init__(self, parent: tk.Widget, carrier_cargo_position: CarrierCargoPosition):
+class RightClickContextMenuForStationsList:
+    def __init__(self, parent: tk.Widget, clicked_station: FilteredEdsmStation):
         self._parent = parent
-        self._carrier_cargo_position: CarrierCargoPosition = carrier_cargo_position
+        self._clicked_station: FilteredEdsmStation = clicked_station
         self._menu = tk.Menu(self._parent, tearoff=0)
 
         self._commands: list[_MenuCommand | _MenuSeparator] = [
             _MenuCommand(
-                f"Copy: {self._carrier_cargo_position.trade_name}",
-                lambda: self._copy_to_clipboard(
-                    self._carrier_cargo_position.trade_name
-                ),
+                translation.ptl(f"Copy: {self._clicked_station.station_name}"),
+                lambda: self._copy_to_clipboard(self._clicked_station.station_name),
             ),
             _MenuCommand(
-                "Check on Inara",
-                lambda: self._open_inara_search(
-                    self._carrier_cargo_position.trade_name
-                ),
+                translation.ptl("Check on Inara"),
+                lambda: self._open_inara_search(self._clicked_station),
             ),
             _MenuSeparator(),
-            _MenuCommand("Cancel/Close", lambda: None),
+            _MenuCommand(translation.ptl("Cancel/Close"), lambda: None),
         ]
 
         self._build_menu()
@@ -59,18 +58,16 @@ class RightClickContextMenuForTable:
         self._parent.clipboard_clear()
         self._parent.clipboard_append(text)
 
-    def _open_inara_search(self, commodity_market_name: str):
+    def _open_inara_search(self, station: FilteredEdsmStation):
         """
         Opens Inara search for buying or selling the given commodity.
         Uses the carrier's current location as search center.
         """
-
-        if not commodity_market_name:
+        if not station:
             return
-        url = get_inara_commodity_url(commodity_market_name)
+        url = get_inara_station_link(station)
         if not url:
             return
-
         type(self).open_url(url)
 
     @staticmethod
