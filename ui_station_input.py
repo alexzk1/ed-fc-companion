@@ -111,7 +111,12 @@ class UiStationInput(UiBaseFilteredPlane):
             listbox._stations_objects = category_stations  # type: ignore
 
             for st in category_stations:
-                listbox.insert(tk.END, st.station_name)
+                listbox.insert(
+                    tk.END,
+                    st.station_name
+                    if st.pads_information == ""
+                    else f"{st.station_name}({st.pads_information})",
+                )
             listbox.bind("<<ListboxSelect>>", self._on_station_select)
         self.grid(row=0, column=0, sticky="nsew", padx=3, pady=3)
 
@@ -135,29 +140,33 @@ class UiStationInput(UiBaseFilteredPlane):
     @staticmethod
     def map_station_type(port_type: str) -> tuple[str, str]:
         # TODO: return empty string "" to exclude port_type
+        # Returns: ["Category", "Hint",]
         if not port_type:
             return "", ""
-
         if (
             "Starport" in port_type
             or port_type == "Outpost"
             or port_type == "Mega ship"
         ):
-            return translation.ptl("1.In Space"), translation.ptl(
-                "Orbital stations, outposts, and mega ships."
+            return (
+                translation.ptl("1.In Space"),
+                translation.ptl("Orbital stations, outposts, and mega ships."),
             )
         if "Planetary" in port_type:
-            return translation.ptl("2.Planetary"), translation.ptl(
-                "Horizon's planetary ports and outposts."
+            return (
+                translation.ptl("2.Planetary"),
+                translation.ptl("Horizon's planetary ports and outposts."),
             )
         if port_type == "Odyssey Settlement":
-            return translation.ptl("3.Settlement"), translation.ptl(
-                "Odyssey Planetary Settlements."
+            return (
+                translation.ptl("3.Settlement"),
+                translation.ptl("Odyssey Planetary Settlements."),
             )
 
         if port_type == "Fleet Carrier":
-            return translation.ptl("4.Players' FCs"), translation.ptl(
-                "Player rented Fleet Carriers."
+            return (
+                translation.ptl("4.Players' FCs"),
+                translation.ptl("Player rented Fleet Carriers."),
             )
 
         return port_type, ""

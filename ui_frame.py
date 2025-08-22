@@ -100,6 +100,9 @@ class MainUiFrame(tk.Frame):
         event = entry.get("event")
         self._navigating.get_systems_receiver().set_current_system(system)
 
+        if entry["event"] == "FSDTarget":
+            self._navigating.get_systems_receiver().set_targeted_system(entry["Name"])
+
         logger.debug(f"Received event: {event}")
         if event == "StartUp":
             self._cargo_table_view.populate_colored_carrier_data()
