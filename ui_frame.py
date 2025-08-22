@@ -112,7 +112,7 @@ class MainUiFrame(tk.Frame):
             self._highlights_planes.active_plane_frame, self._docked
         ):
             logger.debug(f"Active 'Docked' plane, event {event}")
-            self._handle_docking_events(event, station)
+            self._handle_docking_events(event, station or state["StationName"])  # type: ignore
 
     def _handle_docking_events(self, event: Any, station: str | None):
         """
@@ -128,10 +128,17 @@ class MainUiFrame(tk.Frame):
             event (Any): The docking event name as a string.
             station (Optional[str]): The station name relevant to the event.
         """
-        if event not in ["StartUp", "Market", "Undocked", "Docked"]:
+        if event not in [
+            "StartUp",
+            "Market",
+            "Undocked",
+            "Docked",
+            "Disembark",
+            "Embark",
+        ]:
             logger.debug(f"_handle_docking_events: ignoring {event}")
             return
-        logger.debug(f"_handle_docking_events: processing {event}")
+        logger.debug(f"_handle_docking_events: processing {event}, station {station}")
 
         # If we're here we must stop the timer (depend on event it can be 2 different reasons though).
         if self._docked_call_after_id is not None:

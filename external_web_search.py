@@ -7,6 +7,7 @@ from _logger import logger
 from carrier_cargo_position import CarrierCargoPosition
 from sell_on_station import FilterSellOnStationProtocol
 from cargo_names import MarketCatalogue
+import carrier_helpers
 
 
 def get_inara_commodity_url(commodity_name: str) -> str | None:
@@ -79,6 +80,7 @@ class EdsmCachedAccess:
         stations: EdsmResponse,
     ) -> EdsmPerStationTypeResponse:
         grouped: EdsmPerStationTypeResponse = defaultdict(list)
+        carrier_name = carrier_helpers.get_carrier_name()
 
         for station in stations:
             if not station.get("haveMarket", False):
@@ -90,6 +92,8 @@ class EdsmCachedAccess:
                 station_id=station.get("id", -1),
                 market_id=station.get("marketId", -1),
             )
+            if filtered_station.station_name == carrier_name:
+                continue
             grouped[station_type].append(filtered_station)
 
         return grouped

@@ -67,7 +67,7 @@ class CanvasTableView:
     def _on_frame_configure(self, event: Any):
         if not self._resize_pending:
             self._resize_pending = True
-            self._frame.after_idle(self._on_resize_done)
+            self._frame.after(250, self._on_resize_done)
 
     def _on_resize_done(self):
         self._resize_pending = False

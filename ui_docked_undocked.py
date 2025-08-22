@@ -68,9 +68,9 @@ class UiDockedUndocked(UiBaseFilteredPlane):
 
     def docked_to(self, station: Optional[str]):
         if not station:
-            logger.debug("Called docked_to() without station name.")
+            logger.debug("Called docked_to() without station name, ignoring.")
             return
-        self._update_freeze_button(station)
+        self._update_buttons(station)
         self._set_current_highlighter(FilterSellOnDockedStation(station))
 
         if self.follow_var.get():
@@ -79,15 +79,14 @@ class UiDockedUndocked(UiBaseFilteredPlane):
             self._frozen = False
 
     def undocked(self) -> None:
-        self._update_freeze_button(None)
-        self._set_current_highlighter(None)
+        self._update_buttons(None)
         if self.follow_var.get() or not self._frozen:
             # Follow mode: remove filter on undock
             self._activate_current_highlighter()
 
-    def _update_freeze_button(self, station: str | None):
+    def _update_buttons(self, station: str | None):
         """Change Freeze button depend if we're docked properly."""
-        self._update_btn.state(["disabled"])  # type: ignore
+
         is_carrier: bool = station == carrier_helpers.get_carrier_name()
         is_wrong_station = not station or is_carrier
         logger.debug(
@@ -99,6 +98,7 @@ class UiDockedUndocked(UiBaseFilteredPlane):
                 self._update_btn.state(["!disabled"])  # type: ignore
             self._freeze_btn.config(text=translation.ptl("Wrong Station"))
         else:
+            self._update_btn.state(["disabled"])  # type: ignore
             self._freeze_btn.state(["!disabled"])  # type: ignore
             self._freeze_btn.config(text=UiDockedUndocked._normal_button_text)
 
