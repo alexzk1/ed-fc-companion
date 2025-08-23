@@ -13,15 +13,15 @@ class SystemNamesReceiver:
     def __init__(self):
         super().__init__()
         self._current_system: str = ""
-        self._route_target_system: str = ""
+        self._route_navigated_final_system: str = ""
         self._targeted_system: str = ""
 
     def set_current_system(self, system: Optional[str]):
         if system is not None:
             self._current_system = system
 
-    def set_route_target_system(self, system: str):
-        self._route_target_system = system
+    def set_navigated_final_system(self, system: str):
+        self._route_navigated_final_system = system
 
     def set_targeted_system(self, system: str):
         self._targeted_system = system
@@ -79,24 +79,34 @@ class UiSystemInput(tk.Frame, SystemNamesReceiver):
             text=translation.ptl("Curr.Sys."),
             command=lambda: self._system_entry_value.set(self._current_system),
         )
+
+        btn_selected = ttk.Button(
+            self,
+            text=translation.ptl("Next Sys."),
+            command=lambda: self._system_entry_value.set(self._targeted_system),
+        )
+        Tooltip(
+            btn_selected,
+            translation.ptl("Use currently targeted on map system (next jump system)."),
+        )
+        btn_selected.grid(row=1, column=2, padx=0)
+
         Tooltip(btn_current, translation.ptl("Use current system."))
         btn_current.grid(row=0, column=2, padx=0)
 
         btn_dest = ttk.Button(
             self,
-            text=translation.ptl("Dest.Sys."),
-            command=lambda: self._system_entry_value.set(self._route_target_system),
+            text=translation.ptl("Nav.Dest."),
+            command=lambda: self._system_entry_value.set(
+                self._route_navigated_final_system
+            ),
         )
-        Tooltip(btn_dest, translation.ptl("Use route destination system."))
+        Tooltip(
+            btn_dest,
+            translation.ptl("Use route destination system (last one on the route)."),
+        )
         btn_dest.grid(row=1, column=1, padx=0)
 
-        btn_selected = ttk.Button(
-            self,
-            text=translation.ptl("Tgt.Sys."),
-            command=lambda: self._system_entry_value.set(self._targeted_system),
-        )
-        Tooltip(btn_selected, translation.ptl("Use currently targeted on map system."))
-        btn_selected.grid(row=1, column=2, padx=0)
         self.grid(row=0, column=0, sticky="nw", padx=3, pady=3)
 
     def get_system_name(self) -> str:

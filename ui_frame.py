@@ -100,8 +100,15 @@ class MainUiFrame(tk.Frame):
         event = entry.get("event")
         self._navigating.get_systems_receiver().set_current_system(system)
 
-        if entry["event"] == "FSDTarget":
+        if event == "FSDTarget":
             self._navigating.get_systems_receiver().set_targeted_system(entry["Name"])
+        if event == "NavRoute":
+            route: Optional[list[dict[str, Any]]] = entry.get("Route")
+            logger.debug("NavRoute event receieved.")
+            if route:
+                self._navigating.get_systems_receiver().set_navigated_final_system(
+                    route[-1]["StarSystem"]
+                )
 
         logger.debug(f"Received event: {event}")
         if event == "StartUp":
