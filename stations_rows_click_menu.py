@@ -1,10 +1,7 @@
 import tkinter as tk
 from typing import Callable
 import webbrowser
-from external_web_search import (
-    FilteredEdsmStation,
-    get_inara_station_link,
-)
+from external_web_search import FilteredEdsmStation
 import translation
 
 
@@ -65,7 +62,7 @@ class RightClickContextMenuForStationsList:
         """
         if not station:
             return
-        url = get_inara_station_link(station)
+        url = station.get_inara_station_link()
         if not url:
             return
         type(self).open_url(url)

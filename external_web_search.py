@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import threading
-from typing import Any, Set, TypeAlias
+from typing import Any, ClassVar, Set, TypeAlias
 import requests
 from _logger import logger
 from carrier_cargo_position import CarrierCargoPosition
@@ -10,15 +10,6 @@ from cargo_names import MarketCatalogue
 import carrier_helpers
 import translation
 import re
-
-
-@dataclass
-class FilteredEdsmStation:
-    station_name: str
-    station_id: int
-    market_id: int
-    pads_information: str
-    system_name: str
 
 
 def _call_inara_search(what: str):
@@ -59,17 +50,38 @@ def get_inara_commodity_url(commodity_name: str) -> str | None:
     return None
 
 
-def get_inara_station_link(station: FilteredEdsmStation) -> str | None:
-    base = "https://inara.cz"
-    target = f"{station.station_name} | {station.system_name}"
-    results = _call_inara_search(station.station_name)
-    for entry in results:
-        if entry.get("value") == target:
-            # label содержит ссылку <a href="/elite/station/734697/">
-            m = re.search(r'href="([^"]+)"', entry["label"], re.IGNORECASE | re.DOTALL)
-            if m:
-                return f"{base}{m.group(1)}"  # например "/elite/station/734697/"
-    return None
+@dataclass
+class FilteredEdsmStation:
+    station_name: str
+    station_id: int
+    market_id: int
+    pads_information: str
+    system_name: str
+
+    _mutex: ClassVar[threading.Lock] = threading.Lock()
+    _cached_inara: ClassVar[dict[str, str]] = {}
+
+    def get_inara_station_link(self) -> str | None:
+        base = "https://inara.cz"
+        target_key = f"{self.station_name} | {self.system_name}"
+        with type(self)._mutex:
+            if target_key in type(self)._cached_inara:
+                return type(self)._cached_inara[target_key]
+
+        results = _call_inara_search(self.station_name)
+        for entry in results:
+            if entry.get("value") == target_key:
+                # Label has reference like <a href="/elite/station/734697/">
+                m = re.search(
+                    r'href="([^"]+)"', entry["label"], re.IGNORECASE | re.DOTALL
+                )
+                if m:
+                    url = f"{base}{m.group(1)}"
+                    with type(self)._mutex:
+                        if target_key not in type(self)._cached_inara:
+                            type(self)._cached_inara[target_key] = url
+                    return url
+        return None
 
 
 EdsmResponse: TypeAlias = list[dict[str, Any]]
