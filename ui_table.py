@@ -159,6 +159,9 @@ class CanvasTableView:
             if self._canvas:
                 # +1 for "header" and +1 for "totals"
                 self._total_rows = 1 + len(cargo) + 1
+                if self._color_market_on_station:
+                    self._total_rows = self._total_rows + 1  # for station name
+
                 self._canvas.delete("all")
                 self._draw_cell(0, "name", ptl("Commodity"))
                 self._draw_cell(0, "amount", ptl("Amount"))
@@ -220,6 +223,17 @@ class CanvasTableView:
                 # Total field
                 self._draw_cell(row_index, "category", "Total Used:", crop=crop)
                 self._draw_cell(row_index, "amount", total_cargo, crop=crop)
+                row_index += 1
+
+                # Station field
+                if self._color_market_on_station:
+                    self._draw_cell(row_index, "category", "Colored For:", crop=crop)
+                    self._draw_cell(
+                        row_index,
+                        "name",
+                        self._color_market_on_station.get_station(),
+                        crop=crop,
+                    )
 
                 logger.debug(f"Update finished of {self._total_rows} rows.")
             return False

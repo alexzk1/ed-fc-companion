@@ -24,6 +24,10 @@ class FilterSellOnStationProtocol:
     Station related to this filter is not param: station_name.
     """
 
+    def get_station(self) -> str: ...
+
+    """Returns for what station this filter was created. """
+
 
 class FilterSellOnDockedStation(FilterSellOnStationProtocol):
     def __init__(self, station: str):
@@ -39,6 +43,9 @@ class FilterSellOnDockedStation(FilterSellOnStationProtocol):
             if what.id == item.market.id:
                 return True
         return False
+
+    def get_station(self) -> str:
+        return self._station
 
     def _load_market_json_what_station_buys(self):
         journal_dir = config.get_str("journaldir")

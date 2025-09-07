@@ -198,3 +198,6 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
 
     def is_buying(self, what: CarrierCargoPosition) -> bool:
         return what.id in self._buy_ids
+
+    def get_station(self) -> str:
+        return self._station.station_name
