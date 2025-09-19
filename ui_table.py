@@ -222,7 +222,7 @@ class CanvasTableView:
 
                 # Total field
                 self._draw_cell(row_index, "category", "Total Used:", crop=crop)
-                self._draw_cell(row_index, "amount", total_cargo, crop=crop)
+                self._draw_cell(row_index, "name", total_cargo, crop=crop)
                 row_index += 1
 
                 # Station field
