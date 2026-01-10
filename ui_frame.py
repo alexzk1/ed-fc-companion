@@ -102,6 +102,7 @@ class MainUiFrame(tk.Frame):
 
         if event == "FSDTarget":
             self._navigating.get_systems_receiver().set_targeted_system(entry["Name"])
+            return
         if event == "NavRoute":
             route: Optional[list[dict[str, Any]]] = entry.get("Route")
             logger.debug("NavRoute event receieved.")
@@ -109,20 +110,13 @@ class MainUiFrame(tk.Frame):
                 self._navigating.get_systems_receiver().set_navigated_final_system(
                     route[-1]["StarSystem"]
                 )
+            return
 
         logger.debug(f"Received event: {event}")
         if event == "StartUp":
             self._cargo_table_view.populate_colored_carrier_data()
-        logger.debug(
-            f"Active pane {self._highlights_planes.active_plane_frame}, docking pane {self._docked}."
-        )
 
-        # Check if "Docked" plane is activated by user.
-        if type(self).is_ancestor(
-            self._highlights_planes.active_plane_frame, self._docked
-        ):
-            logger.debug(f"Active 'Docked' plane, event {event}")
-            self._handle_docking_events(event, station or state["StationName"])  # type: ignore
+        self._handle_docking_events(event, station or state["StationName"])  # type: ignore
 
     def _handle_docking_events(self, event: Any, station: str | None):
         """
@@ -165,12 +159,3 @@ class MainUiFrame(tk.Frame):
                 lambda: setattr(self, "_docked_call_after_id", None)
                 or self._docked.docked_to(station),
             )
-
-    @staticmethod
-    def is_ancestor(ancestor: tk.Widget, widget: tk.Widget) -> bool:
-        current = widget
-        while current is not None:  # type: ignore
-            if current is ancestor:
-                return True
-            current = current.master
-        return False
