@@ -147,7 +147,9 @@ class EdsmCachedAccess:
         params = {
             "systemName": system_name,
         }
-        response = requests.get(BASE_URL, params=params)
+        response = requests.get(
+            BASE_URL, params=params, headers={"User-Agent": "Mozilla/5.0"}
+        )
         response.raise_for_status()
         data = response.json()
 
@@ -176,7 +178,9 @@ class FilterSellFromEDSM(FilterSellOnStationProtocol):
         url = "https://www.edsm.net/api-system-v1/stations/market"
         params: dict[str, Any] = {"marketId": station.market_id}
 
-        resp = requests.get(url, params=params, timeout=5)
+        resp = requests.get(
+            url, params=params, headers={"User-Agent": "Mozilla/5.0"}, timeout=5
+        )
         resp.raise_for_status()
         data = resp.json()
 
